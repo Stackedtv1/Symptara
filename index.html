@@ -1,1 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Symptara — Medical Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --blue: #0ea5e9;
+    --blue-dark: #0284c7;
+    --blue-dim: rgba(14,165,233,0.12);
+    --blue-border: rgba(14,165,233,0.25);
+    --bg: #070b14;
+    --surface: rgba(15,20,35,0.9);
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --dim: #334155;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background: radial-gradient(ellipse 70% 50% at 15% 10%, rgba(14,165,233,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 85% 80%, rgba(56,189,248,0.05) 0%, transparent 60%);
+  }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-thumb { background: rgba(14,165,233,0.3); border-radius: 4px; }
 
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(7,11,20,0.94); backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(14,165,233,0.12);
+    padding: 0 20px; height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo { height: 36px; width: auto; }
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab {
+    padding: 7px 14px; border-radius: 8px; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 500; font-family: inherit;
+    background: transparent; color: var(--muted); transition: all 0.18s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .nav-tab.active { background: rgba(14,165,233,0.15); color: #38bdf8; }
+
+  /* MAIN */
+  main { max-width: 820px; margin: 0 auto; padding: 32px 20px 60px; position: relative; z-index: 1; }
+
+  /* HERO */
+  .hero { text-align: center; margin-bottom: 28px; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 14px; border-radius: 20px; margin-bottom: 18px;
+    background: rgba(14,165,233,0.08); border: 1px solid rgba(14,165,233,0.2);
+    font-size: 12px; color: #38bdf8; font-weight: 500;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(26px, 5vw, 42px); font-weight: 300;
+    color: #f8fafc; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 10px;
+  }
+  .hero h1 em { font-style: italic; color: #38bdf8; }
+  .hero p { color: var(--muted); font-size: 14px; }
+
+  /* SEARCH */
+  .search-wrap { position: relative; margin-bottom: 8px; }
+  .search-box {
+    display: flex; border-radius: 13px;
+    border: 1.5px solid rgba(14,165,233,0.35);
+    background: rgba(15,20,35,0.9);
+    box-shadow: 0 0 0 5px rgba(14,165,233,0.04), 0 4px 24px rgba(0,0,0,0.3);
+  }
+  .search-icon { padding: 0 16px; display: flex; align-items: center; color: var(--blue); }
+  .search-input {
+    flex: 1; background: transparent; border: none; outline: none;
+    font-size: 15px; color: #f1f5f9; padding: 15px 0; font-family: inherit;
+  }
+  .search-input::placeholder { color: var(--dim); }
+  .search-btn {
+    margin: 7px; padding: 10px 22px;
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    border: none; border-radius: 9px; cursor: pointer;
+    color: #fff; font-weight: 600; font-size: 14px; font-family: inherit;
+    box-shadow: 0 2px 12px rgba(14,165,233,0.4); transition: opacity 0.2s;
+  }
+  .search-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .suggestions {
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+    background: #0d1220; border: 1px solid rgba(14,165,233,0.2);
+    border-radius: 12px; overflow: hidden; z-index: 200;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5); display: none;
+  }
+  .suggestion-item {
+    padding: 11px 16px; cursor: pointer; font-size: 14px; color: #cbd5e1;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    display: flex; justify-content: space-between; align-items: center;
+    transition: background 0.12s;
+  }
+  .suggestion-item:hover { background: rgba(14,165,233,0.08); }
+  .suggestion-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-right: 10px; }
+
+  /* DISCLAIMER */
+  .disclaimer {
+    padding: 9px 14px; border-radius: 8px; margin-bottom: 24px;
+    background: rgba(251,191,36,0.04); border: 1px solid rgba(251,191,36,0.12);
+    font-size: 11px; color: #78716c; line-height: 1.5;
+  }
+
+  /* LOADING */
+  .loading { text-align: center; padding: 56px; color: var(--dim); }
+  .spinner {
+    width: 44px; height: 44px; margin: 0 auto 18px;
+    border: 3px solid rgba(14,165,233,0.15); border-top-color: var(--blue);
+    border-radius: 50%; animation: spin 0.75s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* RESULT */
+  .result { animation: slideUp 0.35s cubic-bezier(.22,1,.36,1); }
+  .result-header {
+    border-radius: 16px; padding: 24px; margin-bottom: 14px;
+    position: relative; overflow: hidden;
+  }
+  .tag {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+    margin-right: 6px; margin-bottom: 6px;
+  }
+  .result-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(20px, 4vw, 28px); font-weight: 300;
+    color: #f1f5f9; letter-spacing: -0.03em; line-height: 1.2; margin: 10px 0;
+  }
+  .result-overview { color: #94a3b8; font-size: 14px; line-height: 1.65; }
+  .urgency-box {
+    margin-top: 16px; padding: 10px 14px; border-radius: 8px;
+    background: rgba(251,191,36,0.08); border-left: 3px solid #f59e0b;
+    font-size: 13px; color: #fbbf24; line-height: 1.5;
+  }
+  .prevalence { margin-top: 10px; font-size: 12px; color: var(--dim); }
+  .bookmark-btn {
+    width: 38px; height: 38px; border-radius: 9px; border: none; cursor: pointer;
+    background: rgba(255,255,255,0.04); display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s; flex-shrink: 0;
+  }
+  .bookmark-btn.active { background: rgba(14,165,233,0.2); }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+
+  /* TABS */
+  .tab-nav {
+    display: flex; gap: 4px; margin-bottom: 14px;
+    background: rgba(15,20,35,0.8); padding: 4px; border-radius: 11px;
+    border: 1px solid rgba(14,165,233,0.1);
+  }
+  .tab-btn {
+    flex: 1; padding: 8px 6px; border-radius: 8px; border: none; cursor: pointer;
+    font-size: 12px; font-weight: 600; font-family: inherit; transition: all 0.18s;
+    background: transparent; color: var(--muted);
+  }
+  .tab-btn.active {
+    background: linear-gradient(135deg, rgba(14,165,233,0.3), rgba(2,132,199,0.2));
+    color: #7dd3fc;
+  }
+
+  /* CARDS */
+  .card {
+    background: rgba(15,20,35,0.8); border: 1px solid rgba(14,165,233,0.12);
+    border-radius: 14px; padding: 20px; margin-bottom: 12px;
+  }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 12px; margin-bottom: 12px; }
+  .section-head {
+    font-size: 10px; font-weight: 800; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--dim); margin-bottom: 10px;
+  }
+  .list-item {
+    padding: 5px 0; font-size: 13px; color: #cbd5e1;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    display: flex; gap: 8px;
+  }
+  .list-item:last-child { border-bottom: none; }
+  .list-arrow { flex-shrink: 0; }
+  .symptom-chip {
+    padding: 6px 14px; border-radius: 20px; font-size: 13px; display: inline-block; margin: 3px;
+    background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); color: #fcd34d;
+  }
+  .specialist-chip {
+    padding: 6px 14px; border-radius: 20px; font-size: 13px; display: inline-block; margin: 3px;
+    background: rgba(34,211,238,0.07); border: 1px solid rgba(34,211,238,0.18); color: #67e8f9;
+  }
+  .related-btn {
+    padding: 6px 14px; border-radius: 20px; cursor: pointer; margin: 3px;
+    border: 1px solid rgba(14,165,233,0.25); background: rgba(14,165,233,0.08);
+    color: #7dd3fc; font-size: 13px; font-family: inherit; transition: all 0.18s;
+  }
+  .related-btn:hover { background: rgba(14,165,233,0.18); }
+
+  /* MED CARD */
+  .med-card { border: 1px solid rgba(14,165,233,0.15); border-radius: 10px; overflow: hidden; margin-bottom: 8px; }
+  .med-header {
+    width: 100%; padding: 12px 14px; background: rgba(14,165,233,0.05);
+    border: none; cursor: pointer; display: flex; justify-content: space-between;
+    align-items: center; gap: 12px; font-family: inherit; text-align: left;
+  }
+  .med-name { font-size: 14px; font-weight: 600; color: #e2e8f0; }
+  .med-type { font-size: 11px; color: var(--blue); margin-top: 2px; }
+  .med-body { padding: 12px 14px; border-top: 1px solid rgba(14,165,233,0.1); display: none; }
+  .med-body.open { display: block; }
+  .med-use { font-size: 13px; color: #94a3b8; margin-bottom: 8px; }
+  .med-warning {
+    font-size: 12px; padding: 8px 10px; background: rgba(251,191,36,0.07);
+    border-radius: 6px; border-left: 3px solid #fbbf24; color: #fbbf24;
+  }
+
+  /* NOTES */
+  .notes-card { border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 16px; margin-top: 12px; }
+  .notes-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .notes-label { font-size: 13px; color: var(--muted); }
+  .notes-edit-btn {
+    background: transparent; border: 1px solid rgba(14,165,233,0.3);
+    border-radius: 6px; padding: 5px 12px; color: var(--blue);
+    font-size: 12px; cursor: pointer; font-family: inherit;
+  }
+  .notes-textarea {
+    width: 100%; min-height: 80px; background: rgba(14,165,233,0.05);
+    border: 1px solid rgba(14,165,233,0.2); border-radius: 8px;
+    padding: 10px 12px; color: #e2e8f0; font-size: 13px;
+    resize: vertical; outline: none; font-family: inherit; line-height: 1.6;
+  }
+  .notes-save-btn {
+    margin-top: 8px; padding: 8px 18px;
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    border: none; border-radius: 7px; color: #fff;
+    font-weight: 600; font-size: 13px; cursor: pointer; font-family: inherit;
+  }
+  .notes-text { font-size: 13px; color: #94a3b8; font-style: italic; line-height: 1.6; }
+
+  /* BROWSE */
+  .browse-head { font-size: 10px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); margin-bottom: 12px; }
+  .filter-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+  .filter-pill {
+    padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 12px;
+    font-weight: 500; font-family: inherit; transition: all 0.18s;
+    border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.03); color: var(--muted);
+  }
+  .filter-pill.active { border-color: rgba(14,165,233,0.4); background: rgba(14,165,233,0.12); color: #38bdf8; }
+  .condition-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 8px; }
+  .condition-card {
+    padding: 12px 14px; border-radius: 11px; text-align: left; cursor: pointer;
+    font-family: inherit; transition: all 0.18s; border: 1px solid transparent; background: transparent;
+  }
+  .condition-name { font-size: 13px; font-weight: 500; color: #e2e8f0; margin-bottom: 4px; }
+  .condition-cat { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+
+  /* BOOKMARKS TAB */
+  .bm-card { background: rgba(15,20,35,0.8); border-radius: 14px; padding: 18px; margin-bottom: 10px; }
+  .bm-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 400; color: #f1f5f9; }
+  .bm-overview { color: var(--muted); font-size: 13px; line-height: 1.55; margin: 6px 0 10px; }
+  .bm-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+  .bm-view-btn {
+    padding: 7px 14px; border-radius: 8px; border: none; cursor: pointer;
+    background: rgba(14,165,233,0.12); color: #7dd3fc; font-size: 12px; font-weight: 600; font-family: inherit;
+  }
+  .bm-remove-btn {
+    padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(239,68,68,0.2);
+    background: transparent; color: #f87171; font-size: 12px; cursor: pointer; font-family: inherit;
+  }
+  .bm-date { font-size: 11px; color: var(--dim); margin-top: 8px; }
+  .empty-state { text-align: center; padding: 60px 20px; }
+  .empty-icon { font-size: 48px; opacity: 0.3; margin-bottom: 16px; }
+
+  /* FOOTER */
+  footer { text-align: center; padding: 20px; font-size: 11px; color: var(--dim); border-top: 1px solid rgba(255,255,255,0.03); position: relative; z-index: 1; }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div style="display:flex;align-items:center">
+    <svg height="36" viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="42" fill="none" stroke="url(#g1)" stroke-width="3"/>
+      <polyline points="10,50 28,50 35,30 42,70 50,25 58,65 65,45 72,50 90,50" fill="none" stroke="url(#g1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="75" cy="38" r="3" fill="#0ea5e9"/>
+      <circle cx="82" cy="55" r="3" fill="#0ea5e9"/>
+      <circle cx="68" cy="62" r="3" fill="#38bdf8"/>
+      <line x1="75" y1="38" x2="82" y2="55" stroke="#0ea5e9" stroke-width="1.5"/>
+      <line x1="82" y1="55" x2="68" y2="62" stroke="#0ea5e9" stroke-width="1.5"/>
+      <defs>
+        <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#0ea5e9"/>
+          <stop offset="100%" style="stop-color:#38bdf8"/>
+        </linearGradient>
+      </defs>
+      <text x="110" y="63" font-family="'DM Sans',sans-serif" font-weight="600" font-size="36" fill="url(#g1)" letter-spacing="-1">SYMPTARA</text>
+    </svg>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showTab('search')" id="tab-search">🔍 Search</button>
+    <button class="nav-tab" onclick="showTab('bookmarks')" id="tab-bookmarks">🔖 Saved (0)</button>
+  </div>
+</nav>
+
+<main>
+  <!-- SEARCH TAB -->
+  <div id="search-tab">
+    <div class="hero" id="hero-section">
+      <div class="hero-badge">✨ AI + Database Powered</div>
+      <h1>Symptara<br><em>medical reference, reimagined</em></h1>
+      <p>Search by condition name, symptom, keyword, or ICD code</p>
+    </div>
+
+    <div class="search-wrap">
+      <div class="search-box">
+        <div class="search-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </div>
+        <input class="search-input" id="search-input" placeholder="diabetes, chest pain, fatigue, J45…"
+          oninput="onInput(this.value)" onkeydown="if(event.key==='Enter')doSearch()"/>
+        <button class="search-btn" id="search-btn" onclick="doSearch()">Search</button>
+      </div>
+      <div class="suggestions" id="suggestions"></div>
+    </div>
+
+    <div class="disclaimer">⚠ For informational purposes only. This does not constitute medical advice. Always consult a qualified healthcare provider.</div>
+
+    <div class="loading hidden" id="loading">
+      <div class="spinner"></div>
+      <div style="font-size:13px">Searching database & AI…</div>
+    </div>
+
+    <div id="result-area"></div>
+
+    <div id="browse-area">
+      <div class="browse-head">📚 Browse Database</div>
+      <div class="filter-pills" id="filter-pills"></div>
+      <div class="condition-grid" id="condition-grid"></div>
+    </div>
+  </div>
+
+  <!-- BOOKMARKS TAB -->
+  <div id="bookmarks-tab" class="hidden">
+    <div style="margin-bottom:24px">
+      <h2 style="font-family:'Playfair Display',serif;font-weight:400;font-size:24px;color:#f1f5f9;margin-bottom:4px">Saved Conditions</h2>
+      <p style="color:var(--muted);font-size:13px" id="bm-count">0 conditions bookmarked</p>
+    </div>
+    <div id="bm-list"></div>
+  </div>
+</main>
+
+<footer>Symptara · For informational use only · Not a substitute for professional medical advice</footer>
+
+<script>
+const CATEGORY_COLORS = {
+  Endocrine:"#f59e0b", Cardiovascular:"#ef4444", Respiratory:"#3b82f6",
+  Neurological:"#8b5cf6","Mental Health":"#ec4899", Gastroenterology:"#10b981"
+};
+
+const DB = {
+  "Type 2 Diabetes":{category:"Endocrine",icd:"E11",overview:"A chronic metabolic disorder where the body doesn't use insulin properly, leading to elevated blood glucose levels.",symptoms:["Frequent urination","Excessive thirst","Unexplained weight loss","Fatigue","Blurred vision","Slow-healing sores","Frequent infections","Tingling in hands/feet"],causes:["Insulin resistance","Obesity","Physical inactivity","Genetic predisposition","Age over 45","Prediabetes history"],treatments:["Lifestyle modification","Blood glucose monitoring","Oral medications","Insulin therapy","Weight management","Dietary changes"],medications:[{name:"Metformin",type:"Biguanide",use:"First-line therapy; reduces glucose production",warning:"Avoid in severe kidney disease"},{name:"Glipizide",type:"Sulfonylurea",use:"Stimulates insulin release",warning:"Risk of hypoglycemia"},{name:"Januvia (Sitagliptin)",type:"DPP-4 Inhibitor",use:"Lowers blood sugar after meals",warning:"May cause pancreatitis (rare)"},{name:"Ozempic (Semaglutide)",type:"GLP-1 Agonist",use:"Lowers blood sugar and aids weight loss",warning:"Nausea common initially"}],related:["Type 1 Diabetes","Metabolic Syndrome","Hypertension","Obesity","PCOS"],urgency:"See a doctor if fasting glucose exceeds 126 mg/dL or you experience severe fatigue.",specialists:["Endocrinologist","Dietitian","Ophthalmologist","Podiatrist"],prevalence:"~537 million adults worldwide"},
+  "Hypertension":{category:"Cardiovascular",icd:"I10",overview:"Chronically elevated blood pressure (≥130/80 mmHg) that significantly increases the risk of heart disease, stroke, and kidney damage.",symptoms:["Often asymptomatic","Headaches (severe)","Shortness of breath","Nosebleeds","Chest pain","Dizziness","Visual changes","Pounding in chest/neck"],causes:["Genetics","High sodium diet","Obesity","Physical inactivity","Chronic stress","Excessive alcohol","Kidney disease","Sleep apnea"],treatments:["DASH diet","Regular aerobic exercise","Sodium restriction","Stress management","Smoking cessation","Weight loss","Medication"],medications:[{name:"Lisinopril",type:"ACE Inhibitor",use:"Relaxes blood vessels",warning:"Can cause dry cough; avoid in pregnancy"},{name:"Amlodipine",type:"Calcium Channel Blocker",use:"Relaxes blood vessel walls",warning:"May cause ankle swelling"},{name:"Hydrochlorothiazide",type:"Thiazide Diuretic",use:"Reduces fluid volume",warning:"Monitor potassium levels"},{name:"Losartan",type:"ARB",use:"Blocks angiotensin receptors",warning:"Avoid in pregnancy; monitor kidneys"}],related:["Coronary Artery Disease","Heart Failure","Stroke","Chronic Kidney Disease","Diabetes"],urgency:"Seek emergency care if BP exceeds 180/120 mmHg or you experience chest pain or vision loss.",specialists:["Cardiologist","Nephrologist","Primary Care Physician"],prevalence:"~1.3 billion adults worldwide"},
+  "Asthma":{category:"Respiratory",icd:"J45",overview:"A chronic inflammatory disease of the airways causing recurrent episodes of wheezing, breathlessness, chest tightness, and coughing.",symptoms:["Wheezing","Shortness of breath","Chest tightness","Persistent cough (especially at night)","Rapid breathing","Difficulty sleeping","Fatigue during exercise"],causes:["Allergens (pollen, dust, pet dander)","Air pollution","Respiratory infections","Exercise","Cold air","Stress","Smoke exposure","Genetics"],treatments:["Trigger avoidance","Rescue inhalers","Controller medications","Allergy immunotherapy","Breathing exercises","Action plan management"],medications:[{name:"Albuterol (Ventolin)",type:"Short-acting Beta Agonist",use:"Rapid relief during attacks",warning:"Overuse can worsen asthma"},{name:"Fluticasone (Flovent)",type:"Inhaled Corticosteroid",use:"Daily controller to reduce inflammation",warning:"Rinse mouth after use to prevent thrush"},{name:"Montelukast (Singulair)",type:"Leukotriene Modifier",use:"Daily prevention and allergy control",warning:"Rare neuropsychiatric effects reported"},{name:"Salmeterol (Serevent)",type:"Long-acting Beta Agonist",use:"Long-term symptom control",warning:"Never use alone without corticosteroid"}],related:["Allergic Rhinitis","Eczema","COPD","Sinusitis","GERD"],urgency:"Call 911 if breathing is severely labored, lips/fingernails turn blue, or rescue inhaler provides no relief.",specialists:["Pulmonologist","Allergist/Immunologist"],prevalence:"~262 million people worldwide"},
+  "Migraine":{category:"Neurological",icd:"G43",overview:"A neurological disorder characterized by recurrent moderate-to-severe headaches often accompanied by nausea, vomiting, and extreme sensitivity to light and sound.",symptoms:["Pulsating head pain (one side)","Nausea and vomiting","Light sensitivity","Sound sensitivity","Aura (visual disturbances)","Dizziness","Neck stiffness","Cognitive fog"],causes:["Hormonal changes","Stress","Certain foods/drinks","Sleep disruption","Sensory stimuli","Medication overuse","Dehydration","Genetic predisposition"],treatments:["Trigger identification/avoidance","Rest in dark quiet room","Cold/warm compresses","Stress management","Regular sleep schedule","Biofeedback","Preventive medications"],medications:[{name:"Sumatriptan (Imitrex)",type:"Triptan",use:"Abortive treatment during attacks",warning:"Avoid in cardiovascular disease"},{name:"Topiramate (Topamax)",type:"Anticonvulsant",use:"Preventive therapy",warning:"Cognitive side effects; teratogenic"},{name:"Amitriptyline",type:"Tricyclic Antidepressant",use:"Preventive therapy",warning:"Causes drowsiness; cardiac monitoring needed"},{name:"Aimovig (Erenumab)",type:"CGRP Monoclonal Antibody",use:"Monthly preventive injection",warning:"Constipation; injection site reactions"}],related:["Tension Headache","Cluster Headache","Vertigo","Depression","Anxiety"],urgency:"Seek emergency care for sudden 'thunderclap' headache or headache with fever and stiff neck.",specialists:["Neurologist","Headache Specialist"],prevalence:"~1 billion people worldwide"},
+  "Depression":{category:"Mental Health",icd:"F32",overview:"A common and serious mood disorder causing persistent feelings of sadness, loss of interest, and a wide range of emotional and physical problems that interfere with daily functioning.",symptoms:["Persistent sadness or emptiness","Loss of interest/pleasure","Fatigue and low energy","Sleep disturbances","Appetite changes","Difficulty concentrating","Feelings of worthlessness","Thoughts of death or suicide"],causes:["Neurochemical imbalances","Genetics","Trauma or life events","Chronic illness","Substance use","Certain medications","Seasonal changes","Hormonal shifts"],treatments:["Psychotherapy (CBT)","Antidepressant medications","Exercise","Social support","Mindfulness-based therapy","Electroconvulsive therapy (severe cases)","Lifestyle modifications"],medications:[{name:"Sertraline (Zoloft)",type:"SSRI",use:"First-line antidepressant",warning:"May increase suicidal thoughts in young adults initially"},{name:"Escitalopram (Lexapro)",type:"SSRI",use:"Broad-spectrum antidepressant",warning:"Sexual side effects common"},{name:"Bupropion (Wellbutrin)",type:"NDRI",use:"Depression + smoking cessation",warning:"Lowers seizure threshold"},{name:"Venlafaxine (Effexor)",type:"SNRI",use:"Depression and anxiety",warning:"Discontinuation syndrome; monitor BP"}],related:["Anxiety Disorder","Bipolar Disorder","PTSD","Substance Use Disorder","Chronic Pain"],urgency:"Seek immediate help if experiencing thoughts of self-harm or suicide. Call 988 (Suicide & Crisis Lifeline).",specialists:["Psychiatrist","Psychologist","Licensed Therapist","Primary Care Physician"],prevalence:"~280 million people worldwide"},
+  "GERD":{category:"Gastroenterology",icd:"K21",overview:"Gastroesophageal reflux disease occurs when stomach acid frequently flows back into the esophagus, causing irritation, heartburn, and potential long-term complications.",symptoms:["Heartburn","Regurgitation","Chest pain","Difficulty swallowing","Chronic cough","Hoarseness","Sore throat","Sensation of lump in throat"],causes:["Weak lower esophageal sphincter","Hiatal hernia","Obesity","Pregnancy","Certain foods/drinks","Smoking","Delayed gastric emptying","Certain medications"],treatments:["Dietary modifications","Weight loss","Elevate head of bed","Avoid lying down after meals","Quit smoking","Limit alcohol","Medications","Surgery (severe cases)"],medications:[{name:"Omeprazole (Prilosec)",type:"Proton Pump Inhibitor",use:"Reduces stomach acid production",warning:"Long-term use may affect magnesium/bone density"},{name:"Famotidine (Pepcid)",type:"H2 Blocker",use:"Reduces acid production",warning:"Generally well tolerated"},{name:"Tums (Calcium Carbonate)",type:"Antacid",use:"Rapid short-term heartburn relief",warning:"Overuse causes acid rebound"},{name:"Metoclopramide",type:"Prokinetic",use:"Speeds gastric emptying",warning:"Neurological side effects with prolonged use"}],related:["Barrett's Esophagus","Esophagitis","Hiatal Hernia","Peptic Ulcer","Asthma"],urgency:"See a doctor for difficulty swallowing, unintentional weight loss, or symptoms lasting more than 2 weeks.",specialists:["Gastroenterologist"],prevalence:"~20% of the Western population"}
+};
+
+let bookmarks = JSON.parse(localStorage.getItem('symptara_bookmarks') || '[]');
+let notes = JSON.parse(localStorage.getItem('symptara_notes') || '{}');
+let currentResult = null;
+let currentTab = 'search';
+let categoryFilter = 'All';
+let noteOpen = false;
+
+function saveData() {
+  localStorage.setItem('symptara_bookmarks', JSON.stringify(bookmarks));
+  localStorage.setItem('symptara_notes', JSON.stringify(notes));
+}
+
+// Build browse grid
+function buildBrowse() {
+  const cats = ['All', ...Object.keys(CATEGORY_COLORS)];
+  const pills = document.getElementById('filter-pills');
+  pills.innerHTML = cats.map(c =>
+    `<button class="filter-pill ${c===categoryFilter?'active':''}" onclick="setFilter('${c}')">${c}</button>`
+  ).join('');
+  const grid = document.getElementById('condition-grid');
+  grid.innerHTML = Object.entries(DB)
+    .filter(([,v]) => categoryFilter==='All' || v.category===categoryFilter)
+    .map(([name,v]) => {
+      const cc = CATEGORY_COLORS[v.category]||'#0ea5e9';
+      return `<button class="condition-card" onclick="searchCondition('${name}')"
+        style="border-color:${cc}20;background:linear-gradient(135deg,${cc}08,transparent)"
+        onmouseover="this.style.borderColor='${cc}40';this.style.background='linear-gradient(135deg,${cc}14,transparent)'"
+        onmouseout="this.style.borderColor='${cc}20';this.style.background='linear-gradient(135deg,${cc}08,transparent)'">
+        <div class="condition-name">${name}</div>
+        <div class="condition-cat" style="color:${cc}">${v.category}</div>
+      </button>`;
+    }).join('');
+}
+
+function setFilter(cat) {
+  categoryFilter = cat;
+  buildBrowse();
+}
+
+function onInput(val) {
+  const s = document.getElementById('suggestions');
+  if (val.length < 2) { s.style.display='none'; return; }
+  const q = val.toLowerCase();
+  const matches = Object.keys(DB).filter(k =>
+    k.toLowerCase().includes(q) || DB[k].symptoms.some(x=>x.toLowerCase().includes(q)) || DB[k].category.toLowerCase().includes(q)
+  ).slice(0,6);
+  if (!matches.length) { s.style.display='none'; return; }
+  s.innerHTML = matches.map(m => {
+    const cc = CATEGORY_COLORS[DB[m].category]||'#0ea5e9';
+    return `<div class="suggestion-item" onclick="searchCondition('${m}')">
+      <div style="display:flex;align-items:center">
+        <div class="suggestion-dot" style="background:${cc}"></div>${m}
+      </div>
+      <span style="font-size:10px;color:var(--dim)">${DB[m].category}</span>
+    </div>`;
+  }).join('');
+  s.style.display = 'block';
+}
+
+function searchCondition(name) {
+  document.getElementById('search-input').value = name;
+  document.getElementById('suggestions').style.display = 'none';
+  showResult(DB[name], name, 'db');
+}
+
+async function doSearch() {
+  const q = document.getElementById('search-input').value.trim();
+  if (!q) return;
+  document.getElementById('suggestions').style.display = 'none';
+
+  // Try DB
+  const dbMatch = Object.keys(DB).find(k=>k.toLowerCase()===q.toLowerCase())
+    || Object.keys(DB).find(k=>k.toLowerCase().includes(q.toLowerCase()))
+    || Object.keys(DB).find(k=>DB[k].symptoms.some(s=>s.toLowerCase().includes(q.toLowerCase())));
+  if (dbMatch) { showResult(DB[dbMatch], dbMatch, 'db'); return; }
+
+  // AI
+  document.getElementById('loading').classList.remove('hidden');
+  document.getElementById('result-area').innerHTML = '';
+  document.getElementById('browse-area').classList.add('hidden');
+  document.getElementById('hero-section').classList.add('hidden');
+  document.getElementById('search-btn').disabled = true;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:1000,
+        system:`Return ONLY a JSON object (no markdown):
+{"condition":"Full name","category":"Endocrine|Cardiovascular|Respiratory|Neurological|Mental Health|Gastroenterology|Other","icd":"ICD-10","overview":"2-3 sentences","symptoms":["up to 8"],"causes":["up to 6"],"treatments":["up to 6"],"medications":[{"name":"","type":"","use":"","warning":""}],"related":["up to 5"],"urgency":"one sentence","specialists":["list"],"prevalence":"stat"}`,
+        messages:[{role:'user',content:q}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.map(b=>b.text||'').join('') || '';
+    const parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
+    showResult(parsed, parsed.condition||q, 'ai');
+  } catch(e) {
+    document.getElementById('result-area').innerHTML = `<div style="padding:16px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:12px;color:#fca5a5;text-align:center">Could not retrieve information. Please try again.</div>`;
+  }
+  document.getElementById('loading').classList.add('hidden');
+  document.getElementById('search-btn').disabled = false;
+}
+
+function showResult(data, key, source) {
+  currentResult = {data, key};
+  document.getElementById('loading').classList.add('hidden');
+  document.getElementById('browse-area').classList.add('hidden');
+  document.getElementById('hero-section').classList.add('hidden');
+  const cc = CATEGORY_COLORS[data.category]||'#0ea5e9';
+  const isBm = bookmarks.some(b=>b.key===key);
+  const note = notes[key]||'';
+  noteOpen = false;
+
+  document.getElementById('result-area').innerHTML = `
+    <div class="result">
+      <div class="result-header" style="background:linear-gradient(135deg,${cc}12,rgba(10,15,30,0));border:1px solid ${cc}25">
+        <div class="header-top">
+          <div>
+            <div style="margin-bottom:8px">
+              <span class="tag" style="background:${cc}18;color:${cc};border:1px solid ${cc}30">${data.category||'General'}</span>
+              ${data.icd?`<span class="tag" style="background:rgba(100,116,139,0.15);color:#94a3b8;border:1px solid rgba(100,116,139,0.25);font-family:monospace">${data.icd}</span>`:''}
+              <span class="tag" style="background:rgba(34,211,238,0.08);color:#22d3ee;border:1px solid rgba(34,211,238,0.2)">${source==='db'?'📚 Database':'✨ AI'}</span>
+            </div>
+            <div class="result-title">${data.condition||key}</div>
+            <div class="result-overview">${data.overview||''}</div>
+          </div>
+          <button class="bookmark-btn ${isBm?'active':''}" id="bm-btn" onclick="toggleBookmark()">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="${isBm?cc:'none'}" stroke="${cc}" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          </button>
+        </div>
+        ${data.urgency?`<div class="urgency-box"><strong>When to seek care:</strong> ${data.urgency}</div>`:''}
+        ${data.prevalence?`<div class="prevalence">🌍 Prevalence: ${data.prevalence}</div>`:''}
+      </div>
+
+      <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab(this,'overview')">Overview</button>
+        <button class="tab-btn" onclick="switchTab(this,'symptoms')">Symptoms</button>
+        <button class="tab-btn" onclick="switchTab(this,'medications')">💊 Meds</button>
+        <button class="tab-btn" onclick="switchTab(this,'details')">Details</button>
+      </div>
+
+      <div id="tab-overview">
+        <div class="card-grid">
+          <div class="card"><div class="section-head">Causes & Risk Factors</div>${(data.causes||[]).map(c=>`<div class="list-item"><span class="list-arrow" style="color:#ef4444">›</span>${c}</div>`).join('')}</div>
+          <div class="card"><div class="section-head">Treatments</div>${(data.treatments||[]).map(t=>`<div class="list-item"><span class="list-arrow" style="color:#10b981">›</span>${t}</div>`).join('')}</div>
+        </div>
+      </div>
+      <div id="tab-symptoms" class="hidden">
+        <div class="card"><div class="section-head">Symptoms & Signs</div><div>${(data.symptoms||[]).map(s=>`<span class="symptom-chip">${s}</span>`).join('')}</div></div>
+      </div>
+      <div id="tab-medications" class="hidden">
+        <div class="card">
+          <div class="section-head">Medications — Tap to expand</div>
+          ${(data.medications||[]).map((m,i)=>{
+            const med = typeof m==='string'?{name:m,type:'—',use:'—',warning:'Consult your doctor.'}:m;
+            return `<div class="med-card">
+              <button class="med-header" onclick="toggleMed(${i})">
+                <div><div class="med-name">${med.name}</div><div class="med-type">${med.type}</div></div>
+                <span id="med-arrow-${i}" style="color:var(--muted);font-size:18px">+</span>
+              </button>
+              <div class="med-body" id="med-body-${i}">
+                <div class="med-use"><span style="font-weight:600;color:var(--dim)">Use: </span>${med.use}</div>
+                <div class="med-warning">⚠ ${med.warning}</div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div style="font-size:11px;color:var(--dim);line-height:1.5">⚠ Always consult a licensed pharmacist or physician before starting or changing any medication.</div>
+      </div>
+      <div id="tab-details" class="hidden">
+        ${data.specialists?.length?`<div class="card" style="margin-bottom:12px"><div class="section-head">Recommended Specialists</div><div>${data.specialists.map(s=>`<span class="specialist-chip">${s}</span>`).join('')}</div></div>`:''}
+        ${data.related?.length?`<div class="card"><div class="section-head">Related Conditions</div><div>${data.related.map(r=>`<button class="related-btn" onclick="searchCondition('${r}')">${r}</button>`).join('')}</div></div>`:''}
+      </div>
+
+      <div class="notes-card" id="notes-card">
+        <div class="notes-row">
+          <span class="notes-label">📝 Personal Notes</span>
+          <button class="notes-edit-btn" onclick="toggleNotes()">${note?'Edit':'Add Note'}</button>
+        </div>
+        ${note&&!noteOpen?`<div class="notes-text">"${note}"</div>`:''}
+        <div id="notes-editor" class="${noteOpen?'':'hidden'}">
+          <textarea class="notes-textarea" id="notes-input" placeholder="Add doctor instructions, personal triggers, reminders…">${note}</textarea>
+          <button class="notes-save-btn" onclick="saveNote()">Save Note</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function switchTab(btn, name) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ['overview','symptoms','medications','details'].forEach(t=>{
+    const el = document.getElementById('tab-'+t);
+    if(el) el.classList.toggle('hidden', t!==name);
+  });
+}
+
+function toggleMed(i) {
+  const body = document.getElementById('med-body-'+i);
+  const arrow = document.getElementById('med-arrow-'+i);
+  body.classList.toggle('open');
+  arrow.textContent = body.classList.contains('open')?'−':'+';
+}
+
+function toggleBookmark() {
+  if (!currentResult) return;
+  const {data, key} = currentResult;
+  const idx = bookmarks.findIndex(b=>b.key===key);
+  if (idx>=0) bookmarks.splice(idx,1);
+  else bookmarks.push({key, condition:data.condition||key, category:data.category, icd:data.icd, overview:data.overview, symptoms:data.symptoms, savedAt:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})});
+  saveData();
+  updateBookmarkBtn();
+  updateBookmarkCount();
+}
+
+function updateBookmarkBtn() {
+  if (!currentResult) return;
+  const isBm = bookmarks.some(b=>b.key===currentResult.key);
+  const btn = document.getElementById('bm-btn');
+  if (!btn) return;
+  const cc = CATEGORY_COLORS[currentResult.data.category]||'#0ea5e9';
+  btn.classList.toggle('active', isBm);
+  btn.querySelector('svg').setAttribute('fill', isBm?cc:'none');
+}
+
+function updateBookmarkCount() {
+  document.getElementById('tab-bookmarks').textContent = `🔖 Saved (${bookmarks.length})`;
+}
+
+function toggleNotes() {
+  noteOpen = !noteOpen;
+  const editor = document.getElementById('notes-editor');
+  if (editor) editor.classList.toggle('hidden', !noteOpen);
+}
+
+function saveNote() {
+  if (!currentResult) return;
+  const val = document.getElementById('notes-input').value.trim();
+  notes[currentResult.key] = val;
+  saveData();
+  noteOpen = false;
+  showResult(currentResult.data, currentResult.key, 'cache');
+}
+
+function showTab(tab) {
+  currentTab = tab;
+  document.getElementById('search-tab').classList.toggle('hidden', tab!=='search');
+  document.getElementById('bookmarks-tab').classList.toggle('hidden', tab!=='bookmarks');
+  document.getElementById('tab-search').classList.toggle('active', tab==='search');
+  document.getElementById('tab-bookmarks').classList.toggle('active', tab==='bookmarks');
+  if (tab==='bookmarks') renderBookmarks();
+}
+
+function renderBookmarks() {
+  const list = document.getElementById('bm-list');
+  document.getElementById('bm-count').textContent = `${bookmarks.length} condition${bookmarks.length!==1?'s':''} bookmarked`;
+  if (!bookmarks.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🔖</div><div style="color:var(--dim);font-size:14px">No saved conditions yet.</div><div style="color:var(--dim);font-size:13px;margin-top:6px">Search for a condition and click the bookmark icon.</div></div>`;
+    return;
+  }
+  list.innerHTML = bookmarks.map((b,i)=>{
+    const cc = CATEGORY_COLORS[b.category]||'#0ea5e9';
+    const note = notes[b.key]||'';
+    return `<div class="bm-card" style="border:1px solid ${cc}18">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+        <div style="flex:1">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:6px">
+            <span class="bm-title">${b.condition}</span>
+            <span class="tag" style="background:${cc}18;color:${cc};border:1px solid ${cc}30">${b.category}</span>
+            ${b.icd?`<span class="tag" style="background:rgba(100,116,139,0.15);color:#94a3b8;border:1px solid rgba(100,116,139,0.2);font-family:monospace;font-size:10px">${b.icd}</span>`:''}
+          </div>
+          <div class="bm-overview">${b.overview||''}</div>
+          ${b.symptoms?.slice(0,4).map(s=>`<span style="font-size:11px;padding:3px 9px;border-radius:12px;background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.15);color:#d97706;margin:2px;display:inline-block">${s}</span>`).join('')||''}
+          ${note?`<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:8px">📝 ${note}</div>`:''}
+          <div class="bm-date">Saved ${b.savedAt}</div>
+        </div>
+        <div class="bm-actions">
+          <button class="bm-view-btn" onclick="viewBookmark(${i})">View</button>
+          <button class="bm-remove-btn" onclick="removeBookmark(${i})">Remove</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function viewBookmark(i) {
+  const b = bookmarks[i];
+  document.getElementById('search-input').value = b.condition;
+  showTab('search');
+  const data = DB[b.condition] || {condition:b.condition,category:b.category,icd:b.icd,overview:b.overview,symptoms:b.symptoms};
+  showResult(data, b.key, 'db');
+}
+
+function removeBookmark(i) {
+  bookmarks.splice(i,1);
+  saveData();
+  updateBookmarkCount();
+  renderBookmarks();
+}
+
+// Init
+buildBrowse();
+updateBookmarkCount();
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) document.getElementById('suggestions').style.display='none';
+});
+</script>
+</body>
+</html>
