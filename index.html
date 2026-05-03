@@ -277,7 +277,38 @@
 
   .hidden { display: none !important; }
   .db-count { font-size: 11px; color: var(--dim); margin-bottom: 16px; }
+
+/* PAYWALL STYLES */
+.paywall-overlay{position:fixed;inset:0;background:rgba(7,11,20,0.92);backdrop-filter:blur(12px);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;}
+.paywall-card{background:#0d1220;border:1px solid rgba(14,165,233,0.25);border-radius:20px;padding:32px 24px;max-width:400px;width:100%;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,0.6);}
+.paywall-icon{font-size:40px;margin-bottom:12px;}
+.paywall-title{font-family:"Playfair Display",serif;font-size:24px;font-weight:400;color:#f1f5f9;margin-bottom:8px;}
+.paywall-subtitle{font-size:13px;color:#64748b;margin-bottom:24px;line-height:1.6;}
+.paywall-features{text-align:left;margin-bottom:24px;}
+.paywall-feature{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:13px;color:#cbd5e1;border-bottom:1px solid rgba(255,255,255,0.04);}
+.paywall-feature:last-child{border-bottom:none;}
+.paywall-feature-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.price-box{background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2);border-radius:12px;padding:16px;margin-bottom:20px;}
+.price-main{font-size:32px;font-weight:700;color:#f1f5f9;font-family:"Playfair Display",serif;}
+.price-period{font-size:13px;color:#64748b;}
+.price-trial{font-size:12px;color:#38bdf8;margin-top:4px;font-weight:500;}
+.stripe-btn{width:100%;padding:14px;background:linear-gradient(135deg,#0ea5e9,#0284c7);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(14,165,233,0.4);margin-bottom:10px;transition:opacity 0.2s;}
+.stripe-btn:hover{opacity:0.9;}
+.stripe-btn:disabled{opacity:0.6;cursor:not-allowed;}
+.paywall-close{background:transparent;border:none;color:#475569;font-size:12px;cursor:pointer;font-family:inherit;padding:4px;}
+.paywall-close:hover{color:#94a3b8;}
+.pro-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;background:linear-gradient(135deg,rgba(14,165,233,0.2),rgba(139,92,246,0.2));border:1px solid rgba(14,165,233,0.3);font-size:10px;font-weight:700;color:#38bdf8;letter-spacing:0.06em;margin-left:6px;}
+.trial-banner{background:linear-gradient(135deg,rgba(14,165,233,0.1),rgba(139,92,246,0.1));border:1px solid rgba(14,165,233,0.2);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#7dd3fc;text-align:center;display:none;}
+.trial-banner.active{display:block;}
+.manage-sub-btn{background:transparent;border:1px solid rgba(14,165,233,0.3);border-radius:8px;padding:6px 14px;color:#0ea5e9;font-size:12px;cursor:pointer;font-family:inherit;}
+.stripe-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(14,165,233,0.2);border-radius:8px;padding:10px 12px;color:#f1f5f9;font-size:14px;outline:none;font-family:inherit;margin-bottom:10px;}
+.stripe-input::placeholder{color:#475569;}
+.stripe-error{color:#f87171;font-size:12px;margin-bottom:10px;display:none;}
+.step-indicator{display:flex;justify-content:center;gap:8px;margin-bottom:20px;}
+.step-dot{width:8px;height:8px;border-radius:50%;background:rgba(14,165,233,0.2);}
+.step-dot.active{background:#0ea5e9;}
 </style>
+<script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
 
@@ -302,6 +333,10 @@
   </div>
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showTab('search')" id="tab-search">🔍 Search</button>
+    <button class="nav-tab" onclick="showTab('diff')" id="tab-diff">&#129516; Diff Dx<span class="pro-badge">PRO</span></button>
+    <button class="nav-tab" onclick="showTab('drugs')" id="tab-drugs">&#128138; Drug Rx<span class="pro-badge">PRO</span></button>
+    <button class="nav-tab" onclick="showTab('labs')" id="tab-labs">&#129514; Labs<span class="pro-badge">PRO</span></button>
+    <button class="nav-tab" onclick="showTab('mnemonics')" id="tab-mnemonics">&#129504; Mnemonics<span class="pro-badge">PRO</span></button>
     <button class="nav-tab" onclick="showTab('bookmarks')" id="tab-bookmarks">🔖 Saved (0)</button>
   </div>
 </nav>
@@ -352,6 +387,108 @@
     </div>
     <div id="bm-list"></div>
   </div>
+
+<!-- DIFF DX TAB -->
+<div id="diff-tab" class="hidden">
+<div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:400;color:#f1f5f9;margin-bottom:4px">&#129516; Differential Diagnosis</div>
+<div style="font-size:12px;color:var(--muted);margin-bottom:16px">Enter symptoms to find matching conditions ranked by match percentage</div>
+<div class="card">
+<div class="section-head">Enter Symptoms</div>
+<div id="sym-tags" style="display:flex;flex-wrap:wrap;gap:5px;padding:8px;background:rgba(14,165,233,0.04);border:1px solid rgba(14,165,233,0.2);border-radius:8px;margin-bottom:8px;min-height:40px"></div>
+<div style="display:flex;gap:7px;margin-bottom:12px">
+<input id="sym-input" placeholder="Type a symptom and press Add..." onkeydown="if(event.key==='Enter')addSymptom()" style="flex:1;background:rgba(14,165,233,0.05);border:1px solid rgba(14,165,233,0.2);border-radius:8px;padding:9px 12px;color:#f1f5f9;font-size:13px;outline:none;font-family:inherit"/>
+<button onclick="addSymptom()" style="padding:9px 13px;background:linear-gradient(135deg,#0ea5e9,#0284c7);border:none;border-radius:8px;cursor:pointer;color:#fff;font-weight:600;font-size:12px;font-family:inherit">Add</button>
+</div>
+<button onclick="runDiff()" style="width:100%;padding:10px;background:linear-gradient(135deg,#0ea5e9,#0284c7);border:none;border-radius:8px;color:#fff;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit">Find Matching Conditions</button>
+</div>
+<div id="diff-results"></div>
+</div>
+
+<!-- DRUG INTERACTIONS TAB -->
+<div id="drugs-tab" class="hidden">
+<div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:400;color:#f1f5f9;margin-bottom:4px">&#128138; Drug Interactions</div>
+<div style="font-size:12px;color:var(--muted);margin-bottom:16px">Add medications to check for known interactions</div>
+<div class="card">
+<div class="section-head">Add Medications</div>
+<div id="drug-tags" style="display:flex;flex-wrap:wrap;gap:5px;padding:8px;background:rgba(14,165,233,0.04);border:1px solid rgba(14,165,233,0.2);border-radius:8px;margin-bottom:8px;min-height:40px"></div>
+<div style="display:flex;gap:7px;margin-bottom:12px">
+<input id="drug-input" placeholder="Type drug name and press Add..." onkeydown="if(event.key==='Enter')addDrug()" style="flex:1;background:rgba(14,165,233,0.05);border:1px solid rgba(14,165,233,0.2);border-radius:8px;padding:9px 12px;color:#f1f5f9;font-size:13px;outline:none;font-family:inherit"/>
+<button onclick="addDrug()" style="padding:9px 13px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);border:none;border-radius:8px;cursor:pointer;color:#fff;font-weight:600;font-size:12px;font-family:inherit">Add</button>
+</div>
+<button onclick="checkInteractions()" style="width:100%;padding:10px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);border:none;border-radius:8px;color:#fff;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit">Check Interactions</button>
+</div>
+<div id="drug-results"></div>
+</div>
+
+<!-- LAB VALUES TAB -->
+<div id="labs-tab" class="hidden">
+<div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:400;color:#f1f5f9;margin-bottom:4px">&#129514; Lab Values Reference</div>
+<div style="font-size:12px;color:var(--muted);margin-bottom:16px">Normal reference ranges for common laboratory tests</div>
+<input id="lab-search" oninput="filterLabs(this.value)" placeholder="Search labs (sodium, WBC, troponin, ABG)..." style="width:100%;background:rgba(14,165,233,0.05);border:1px solid rgba(14,165,233,0.2);border-radius:8px;padding:9px 12px;color:#f1f5f9;font-size:13px;outline:none;font-family:inherit;margin-bottom:14px"/>
+<div id="labs-content"></div>
+</div>
+
+<!-- MNEMONICS TAB -->
+<div id="mnemonics-tab" class="hidden">
+<div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:400;color:#f1f5f9;margin-bottom:4px">&#129504; Clinical Mnemonics</div>
+<div style="font-size:12px;color:var(--muted);margin-bottom:16px">Memory aids for medical students &mdash; tap any card to expand</div>
+<div id="mn-filters" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px"></div>
+<div id="mnemonics-content"></div>
+</div>
+
+<!-- TRIAL BANNER -->
+<div class="trial-banner" id="trial-banner">
+  &#10024; <span id="trial-text">7-day free trial active</span> &mdash; <button class="manage-sub-btn" onclick="openPaywall('manage')">Manage Subscription</button>
+</div>
+
+<!-- PAYWALL MODAL -->
+<div class="paywall-overlay hidden" id="paywall-overlay">
+  <div class="paywall-card">
+    <div id="paywall-step-1">
+      <div class="paywall-icon">&#127968;</div>
+      <div class="paywall-title">Symptara Pro</div>
+      <div class="paywall-subtitle">Unlock all features for medical students, nurses, pharmacists, and healthcare professionals.</div>
+      <div class="paywall-features">
+        <div class="paywall-feature"><div class="paywall-feature-icon" style="background:rgba(14,165,233,0.12)">&#129516;</div><div><strong>Differential Diagnosis</strong><br><span style="font-size:11px;color:#64748b">Enter symptoms, get ranked conditions</span></div></div>
+        <div class="paywall-feature"><div class="paywall-feature-icon" style="background:rgba(139,92,246,0.12)">&#128138;</div><div><strong>Drug Interactions</strong><br><span style="font-size:11px;color:#64748b">Check 25+ known drug interactions</span></div></div>
+        <div class="paywall-feature"><div class="paywall-feature-icon" style="background:rgba(16,185,129,0.12)">&#129514;</div><div><strong>Lab Values Reference</strong><br><span style="font-size:11px;color:#64748b">Complete reference ranges</span></div></div>
+        <div class="paywall-feature"><div class="paywall-feature-icon" style="background:rgba(236,72,153,0.12)">&#129504;</div><div><strong>Clinical Mnemonics</strong><br><span style="font-size:11px;color:#64748b">17+ memory aids (SIGECAPS, MUDPILES...)</span></div></div>
+        <div class="paywall-feature"><div class="paywall-feature-icon" style="background:rgba(245,158,11,0.12)">&#128218;</div><div><strong>Full Condition Database</strong><br><span style="font-size:11px;color:#64748b">64+ conditions with AI fallback</span></div></div>
+      </div>
+      <div class="price-box">
+        <div class="price-main">$4.99</div>
+        <div class="price-period">per month</div>
+        <div class="price-trial">&#10003; Start with 7 days FREE &mdash; cancel anytime</div>
+      </div>
+      <button class="stripe-btn" onclick="startTrial()">Start Free Trial</button>
+      <div><button class="paywall-close" onclick="closePaywall()">Maybe later</button></div>
+    </div>
+
+    <div id="paywall-step-2" class="hidden">
+      <div class="paywall-icon">&#128274;</div>
+      <div class="paywall-title">Start Your Trial</div>
+      <div class="paywall-subtitle">Enter your email to begin your 7-day free trial. No charge until day 8.</div>
+      <div class="step-indicator"><div class="step-dot"></div><div class="step-dot active"></div><div class="step-dot"></div></div>
+      <input class="stripe-input" id="user-email" type="email" placeholder="your@email.com"/>
+      <div id="stripe-card-element" style="background:rgba(255,255,255,0.05);border:1px solid rgba(14,165,233,0.2);border-radius:8px;padding:12px;margin-bottom:10px;min-height:42px;"></div>
+      <div class="stripe-error" id="stripe-error"></div>
+      <button class="stripe-btn" id="pay-btn" onclick="submitPayment()">&#128274; Start 7-Day Free Trial</button>
+      <div style="font-size:11px;color:#475569;margin-top:8px">Secured by Stripe &middot; Cancel anytime &middot; No charge for 7 days</div>
+      <div style="margin-top:8px"><button class="paywall-close" onclick="showStep(1)">&#8592; Back</button></div>
+    </div>
+
+    <div id="paywall-step-3" class="hidden">
+      <div class="paywall-icon">&#127881;</div>
+      <div class="paywall-title">You&apos;re all set!</div>
+      <div class="paywall-subtitle">Your 7-day free trial has started. All Pro features are now unlocked. Enjoy Symptara Pro!</div>
+      <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:16px;margin-bottom:20px;font-size:13px;color:#4ade80;">
+        &#10003; Trial active &mdash; $4.99/month starts in 7 days<br>
+        &#10003; Cancel anytime from settings
+      </div>
+      <button class="stripe-btn" onclick="closePaywall();unlockPro()">Start Using Pro Features</button>
+    </div>
+  </div>
+</div>
 </main>
 
 <footer>Symptara · For informational use only · Not a substitute for professional medical advice</footer>
@@ -740,6 +877,425 @@ buildBrowse();
 updateBookmarkCount();
 document.addEventListener('click', e => {
   if (!e.target.closest('.search-wrap')) document.getElementById('suggestions').style.display='none';
+});
+
+// ── DRUG INTERACTIONS ──────────────────────────────────────────────────────
+const INTERACTIONS=[
+{drugs:["warfarin","aspirin"],sev:"high",title:"Warfarin + Aspirin",desc:"Major bleeding risk. Aspirin antiplatelet effect combined with anticoagulation significantly increases GI and intracranial hemorrhage risk."},
+{drugs:["warfarin","nsaid","ibuprofen","naproxen"],sev:"high",title:"Warfarin + NSAIDs",desc:"NSAIDs inhibit platelet function and cause GI ulceration, compounding anticoagulant hemorrhage risk. Use acetaminophen instead."},
+{drugs:["warfarin","fluconazole","azole"],sev:"high",title:"Warfarin + Azole Antifungals",desc:"Fluconazole inhibits CYP2C9, markedly reducing warfarin metabolism. INR can increase dramatically. Monitor INR and reduce warfarin dose."},
+{drugs:["warfarin","amiodarone"],sev:"high",title:"Warfarin + Amiodarone",desc:"Amiodarone inhibits CYP2C9 and CYP3A4, increasing warfarin levels. INR can double or triple. Reduce warfarin by 30-50%."},
+{drugs:["warfarin","rifampin"],sev:"high",title:"Warfarin + Rifampin",desc:"Rifampin is a potent CYP450 inducer, dramatically increasing warfarin metabolism. INR falls. May need to double warfarin dose."},
+{drugs:["metformin","contrast","iodine"],sev:"high",title:"Metformin + IV Contrast",desc:"Risk of contrast-induced nephropathy leading to metformin accumulation and lactic acidosis. Hold metformin 48h before and after IV contrast if eGFR<60."},
+{drugs:["ssri","maoi"],sev:"high",title:"SSRIs + MAOIs",desc:"Serotonin syndrome - potentially FATAL. Never combine. Washout: 14 days after MAOI; 14 days after SSRI (5 weeks for fluoxetine)."},
+{drugs:["tramadol","ssri","snri"],sev:"high",title:"Tramadol + Serotonergic Drugs",desc:"Tramadol inhibits serotonin reuptake; combining with SSRIs or SNRIs risks serotonin syndrome."},
+{drugs:["statin","clarithromycin","erythromycin"],sev:"high",title:"Statins + Clarithromycin",desc:"Clarithromycin inhibits CYP3A4, markedly increasing simvastatin/lovastatin levels. Risk of rhabdomyolysis. Hold statin during treatment."},
+{drugs:["methotrexate","nsaid","ibuprofen","naproxen"],sev:"high",title:"Methotrexate + NSAIDs",desc:"NSAIDs inhibit renal MTX excretion causing toxicity (bone marrow suppression, mucositis). Avoid with high-dose MTX."},
+{drugs:["digoxin","amiodarone"],sev:"high",title:"Digoxin + Amiodarone",desc:"Amiodarone increases digoxin levels by 70-100%. Reduce digoxin dose by 50% when starting amiodarone. Monitor levels."},
+{drugs:["digoxin","clarithromycin"],sev:"high",title:"Digoxin + Clarithromycin",desc:"Clarithromycin inhibits P-gp efflux of digoxin, increasing digoxin levels and risk of toxicity (bradycardia, AV block)."},
+{drugs:["lithium","nsaid","ibuprofen"],sev:"high",title:"Lithium + NSAIDs",desc:"NSAIDs reduce renal lithium clearance. Lithium levels can increase 25-60%, risking toxicity. Use acetaminophen."},
+{drugs:["lithium","thiazide","hydrochlorothiazide"],sev:"high",title:"Lithium + Thiazide Diuretics",desc:"Thiazides cause sodium depletion, triggering compensatory lithium reabsorption. Lithium levels can increase dramatically."},
+{drugs:["clopidogrel","ppi","omeprazole"],sev:"moderate",title:"Clopidogrel + Omeprazole",desc:"Omeprazole inhibits CYP2C19, reducing clopidogrel activation by 40-50%. Use pantoprazole or famotidine instead."},
+{drugs:["sildenafil","tadalafil","nitrate","nitroglycerin"],sev:"high",title:"PDE5 Inhibitors + Nitrates",desc:"POTENTIALLY FATAL hypotension. ABSOLUTE CONTRAINDICATION. Do not use nitrates within 24-48h of PDE5 inhibitors."},
+{drugs:["linezolid","ssri","snri"],sev:"high",title:"Linezolid + SSRIs/SNRIs",desc:"Linezolid is a MAO inhibitor. Combination with SSRIs causes serotonin syndrome. Washout SSRIs before starting linezolid."},
+{drugs:["metronidazole","alcohol"],sev:"moderate",title:"Metronidazole + Alcohol",desc:"Disulfiram-like reaction: flushing, nausea, vomiting, tachycardia. Avoid alcohol during treatment and 48h after."},
+{drugs:["rifampin","contraceptive","ocp","pill"],sev:"high",title:"Rifampin + Oral Contraceptives",desc:"Rifampin dramatically reduces OCP hormone levels causing contraceptive failure. Use barrier method during and 4 weeks after rifampin."},
+{drugs:["carbamazepine","contraceptive","ocp"],sev:"high",title:"Carbamazepine + OCPs",desc:"Carbamazepine induces CYP3A4, reducing contraceptive efficacy. Use barrier contraception or switch antiepileptic."},
+{drugs:["valproate","lamotrigine"],sev:"moderate",title:"Valproate + Lamotrigine",desc:"Valproate inhibits lamotrigine metabolism, doubling lamotrigine levels. Reduce lamotrigine dose by 50%. Risk of serious rash."},
+{drugs:["ace","arb","potassium","spironolactone"],sev:"high",title:"ACE-I/ARB + K-sparing agents",desc:"Double potassium-sparing effect significantly increases hyperkalemia risk. Monitor K+ and renal function closely, especially in CKD."},
+{drugs:["fluconazole","tacrolimus","cyclosporine"],sev:"high",title:"Azoles + Calcineurin Inhibitors",desc:"Azoles inhibit CYP3A4, increasing tacrolimus/cyclosporine levels 2-5 fold. Reduce doses and monitor trough levels."},
+{drugs:["ssri","nsaid","ibuprofen","aspirin"],sev:"moderate",title:"SSRIs + NSAIDs",desc:"SSRIs reduce platelet serotonin; combined with NSAIDs increases GI bleeding risk 3-15x. Add PPI if combination necessary."},
+];
+
+// ── LAB VALUES ──────────────────────────────────────────────────────────────
+const LABS={
+"Complete Blood Count (CBC)":[
+{t:"Hemoglobin",r:"M: 13.5-17.5 g/dL | F: 12-15.5 g/dL",n:"Low=anemia; High=polycythemia"},
+{t:"WBC",r:"4.5-11.0 x10/uL",n:"Diff: Neut 50-70%, Lymph 20-40%"},
+{t:"Platelets",r:"150-400 x10/uL",n:"<50K=bleeding risk; <20K=spontaneous bleed"},
+{t:"MCV",r:"80-100 fL",n:"Micro <80 (iron/thal); Macro >100 (B12/folate)"},
+{t:"Reticulocytes",r:"0.5-1.5%",n:"Elevated=active RBC production (hemolysis)"},
+],
+"Basic Metabolic Panel (BMP)":[
+{t:"Sodium (Na+)",r:"136-145 mEq/L",n:"Hypo: SIADH, CHF; Hyper: DI, dehydration"},
+{t:"Potassium (K+)",r:"3.5-5.0 mEq/L",n:"Hypo: diuretics, vomiting; Hyper: CKD, ACEi"},
+{t:"BUN",r:"7-20 mg/dL",n:"Elevated: prerenal, CKD, GI bleed"},
+{t:"Creatinine",r:"M: 0.7-1.3 | F: 0.6-1.1 mg/dL",n:"Rises after 50% nephron loss"},
+{t:"eGFR",r:">60 mL/min/1.73m2",n:"CKD stages: G3:30-59, G4:15-29, G5<15"},
+{t:"Glucose (fasting)",r:"70-100 mg/dL",n:"Pre-DM: 100-125; DM diagnosis: >=126"},
+{t:"Calcium (total)",r:"8.5-10.5 mg/dL",n:"Correct for albumin: +0.8 per 1g/dL below 4"},
+{t:"Anion Gap",r:"8-12 mEq/L",n:"Elevated AG=MUDPILES; Normal AG=HARDASS"},
+],
+"Liver Function Tests (LFTs)":[
+{t:"AST (SGOT)",r:"10-40 U/L",n:"Hepatocellular injury; also in muscle, heart"},
+{t:"ALT (SGPT)",r:"7-56 U/L",n:"More liver-specific than AST"},
+{t:"AST:ALT ratio",r:">2:1 = alcoholic hepatitis",n:"<1 = viral/other hepatitis"},
+{t:"Alkaline Phosphatase",r:"44-147 U/L",n:"Elevated: cholestasis, bone disease"},
+{t:"Total Bilirubin",r:"0.1-1.2 mg/dL",n:"Direct>50%=hepatic; Indirect=pre-hepatic"},
+{t:"Albumin",r:"3.5-5.0 g/dL",n:"Synthetic function marker; low=chronic liver disease"},
+{t:"PT/INR",r:"11-13s / INR 0.8-1.2",n:"Synthetic function; elevated=coagulopathy or warfarin"},
+],
+"Cardiac Markers":[
+{t:"Troponin I/T",r:"<0.04 ng/mL",n:"Rises 3-6h post-MI; peaks 24h; stays 7-14d"},
+{t:"High-sensitivity Troponin",r:"<14 ng/L",n:"Detectable within 1h; 0/1h or 0/3h protocols"},
+{t:"BNP",r:"<100 pg/mL",n:">400=heart failure likely; 100-400=indeterminate"},
+{t:"NT-proBNP",r:"<125 pg/mL (<75yr)",n:"Higher in renal failure; rules out acute CHF"},
+{t:"D-Dimer",r:"<500 ng/mL FEU",n:"Rules out PE/DVT if low pre-test probability"},
+],
+"Thyroid Function":[
+{t:"TSH",r:"0.4-4.0 mIU/L",n:"Best initial test; LOW=hyperthyroid; HIGH=hypothyroid"},
+{t:"Free T4",r:"0.8-1.8 ng/dL",n:"Low with high TSH=primary hypothyroid"},
+{t:"Free T3",r:"2.3-4.2 pg/mL",n:"Most active; check if T3 toxicosis suspected"},
+{t:"Anti-TPO antibodies",r:"<35 IU/mL",n:"Elevated in Hashimoto and Graves disease"},
+],
+"Arterial Blood Gas (ABG)":[
+{t:"pH",r:"7.35-7.45",n:"<7.35=acidemia; >7.45=alkalemia"},
+{t:"PaCO2",r:"35-45 mmHg",n:"Respiratory parameter; high=hypoventilation"},
+{t:"PaO2",r:"75-100 mmHg",n:"<60=hypoxemia; check A-a gradient"},
+{t:"HCO3-",r:"22-26 mEq/L",n:"Metabolic parameter; use compensation formulas"},
+{t:"SaO2",r:">95%",n:"<90%=significant hypoxemia requiring O2"},
+],
+"Coagulation Studies":[
+{t:"PT (Prothrombin Time)",r:"11-13 seconds",n:"Extrinsic pathway; warfarin monitoring"},
+{t:"INR",r:"0.8-1.2 (therapeutic 2-3)",n:"AFib/DVT: 2-3; mechanical mitral valve: 2.5-3.5"},
+{t:"aPTT",r:"25-35 seconds",n:"Intrinsic pathway; UFH monitoring"},
+{t:"Fibrinogen",r:"200-400 mg/dL",n:"Low in DIC and severe liver failure"},
+{t:"D-Dimer",r:"<500 ng/mL FEU",n:"Elevated in DIC, PE, DVT, sepsis, cancer"},
+],
+"Inflammatory Markers":[
+{t:"CRP",r:"<10 mg/L",n:"Acute phase reactant; rises in 6h"},
+{t:"ESR",r:"M: <15 | F: <20 mm/hr",n:"Elevated in chronic inflammation, myeloma"},
+{t:"Ferritin",r:"M: 30-300 | F: 20-200 ng/mL",n:"Iron stores; low <30=iron deficiency"},
+{t:"Lactate",r:"0.5-2.0 mmol/L",n:">2=hyperlactatemia; >4=lactic acidosis"},
+{t:"Procalcitonin",r:"<0.25 ng/mL",n:"Bacterial infection; guides antibiotic stewardship"},
+],
+"Rheumatology":[
+{t:"ANA",r:"<1:40 titer",n:"Screen for SLE; positive >95% SLE but not specific"},
+{t:"Anti-dsDNA",r:"Negative",n:"Specific for SLE; correlates with disease activity"},
+{t:"Anti-Smith (Sm)",r:"Negative",n:"Highly specific for SLE; present in ~25%"},
+{t:"Rheumatoid Factor (RF)",r:"<14 IU/mL",n:"Positive in 70-80% RA; also Sjogren, SBE"},
+{t:"Anti-CCP",r:"<20 U/mL",n:"More specific than RF for RA; predicts erosive disease"},
+{t:"Uric acid",r:"M: 3.4-7.0 | F: 2.4-6.0 mg/dL",n:">6.8=hyperuricemia; target <6 if treating gout"},
+],
+};
+
+// ── MNEMONICS ───────────────────────────────────────────────────────────────
+const MNEMONICS=[
+{topic:"Psychiatry",title:"Depressive Episode (MDD)",acronym:"SIGECAPS",letters:[{l:"S",w:"Sleep changes (insomnia or hypersomnia)"},{l:"I",w:"Interest loss (anhedonia)"},{l:"G",w:"Guilt (worthlessness, hopelessness)"},{l:"E",w:"Energy decreased (fatigue)"},{l:"C",w:"Concentration difficulty"},{l:"A",w:"Appetite changes (weight gain or loss)"},{l:"P",w:"Psychomotor changes (agitation or retardation)"},{l:"S",w:"Suicidal ideation"}],note:"5 of 8 criteria for 2 weeks = MDD. Must include depressed mood OR anhedonia."},
+{topic:"Psychiatry",title:"Manic Episode",acronym:"DIG FAST",letters:[{l:"D",w:"Distractibility"},{l:"I",w:"Impulsivity (indiscretions, risky behavior)"},{l:"G",w:"Grandiosity (inflated self-esteem)"},{l:"F",w:"Flight of ideas (racing thoughts)"},{l:"A",w:"Activity increased (goal-directed)"},{l:"S",w:"Sleep decreased (not insomnia - just no need)"},{l:"T",w:"Talkativeness (pressured speech)"}],note:"3 of 7 (or 4 if irritable mood) for 7+ days = mania."},
+{topic:"Emergency",title:"Acute Stroke Recognition",acronym:"FAST",letters:[{l:"F",w:"Face drooping (ask to smile)"},{l:"A",w:"Arm weakness (raise both arms)"},{l:"S",w:"Speech difficulty (repeat a phrase)"},{l:"T",w:"Time to call 911 immediately"}],note:"BE-FAST adds Balance and Eyes. tPA window is 4.5h from last known well. Time is brain!"},
+{topic:"Nephrology",title:"Elevated Anion Gap Acidosis",acronym:"MUDPILES",letters:[{l:"M",w:"Methanol"},{l:"U",w:"Uremia"},{l:"D",w:"DKA (diabetic/alcoholic/starvation ketoacidosis)"},{l:"P",w:"Paraldehyde"},{l:"I",w:"Isoniazid / Iron"},{l:"L",w:"Lactic acidosis"},{l:"E",w:"Ethylene glycol"},{l:"S",w:"Salicylates (aspirin)"}],note:"AG = Na - (Cl + HCO3). Normal 8-12. Elevated >12 = MUDPILES."},
+{topic:"Nephrology",title:"Normal Anion Gap Acidosis",acronym:"HARDASS",letters:[{l:"H",w:"Hyperalimentation (TPN)"},{l:"A",w:"Addison disease"},{l:"R",w:"Renal tubular acidosis (RTA types 1, 2, 4)"},{l:"D",w:"Diarrhea (most common)"},{l:"A",w:"Acetazolamide"},{l:"S",w:"Spironolactone"},{l:"S",w:"Saline infusion (dilutional)"}],note:"Normal AG acidosis = bicarb loss (GI or renal) or acid gain. Check urine AG."},
+{topic:"Neurology",title:"Altered Mental Status Causes",acronym:"AEIOU TIPS",letters:[{l:"A",w:"Alcohol"},{l:"E",w:"Epilepsy (post-ictal)"},{l:"I",w:"Insulin (hypoglycemia - check glucose first!)"},{l:"O",w:"Opiates / Overdose"},{l:"U",w:"Uremia"},{l:"T",w:"Trauma / Temperature"},{l:"I",w:"Infection (meningitis, sepsis)"},{l:"P",w:"Psychiatric / Poisoning"},{l:"S",w:"Stroke / Structural / Shock"}],note:"Always: ABC, glucose check, naloxone if opioid suspected."},
+{topic:"Toxicology",title:"Cholinergic Toxidrome",acronym:"SLUDGE",letters:[{l:"S",w:"Salivation"},{l:"L",w:"Lacrimation"},{l:"U",w:"Urination"},{l:"D",w:"Defecation"},{l:"G",w:"GI distress (cramping, N/V)"},{l:"E",w:"Emesis"}],note:"Organophosphates, nerve agents. Antidote: Atropine (large doses) + Pralidoxime (2-PAM)."},
+{topic:"Rheumatology",title:"SLE Diagnostic Criteria",acronym:"SOAP BRAIN MD",letters:[{l:"S",w:"Serositis (pleuritis, pericarditis)"},{l:"O",w:"Oral ulcers (painless)"},{l:"A",w:"Arthritis (non-erosive)"},{l:"P",w:"Photosensitivity"},{l:"B",w:"Blood disorders (cytopenias)"},{l:"R",w:"Renal (proteinuria or RBC casts)"},{l:"A",w:"ANA positive"},{l:"I",w:"Immunologic (anti-dsDNA, anti-Sm, APL)"},{l:"N",w:"Neurologic (seizures, psychosis)"},{l:"M",w:"Malar rash"},{l:"D",w:"Discoid rash"}],note:"4 of 11 criteria (ACR 1997) = SLE diagnosis."},
+{topic:"Cardiology",title:"Secondary Hypertension Causes",acronym:"CREEDM",letters:[{l:"C",w:"Chronic kidney disease (#1 secondary cause)"},{l:"R",w:"Renovascular (renal artery stenosis)"},{l:"E",w:"Endocrine (Conn, Cushing, pheochromocytoma)"},{l:"E",w:"Estrogen (OCP-induced)"},{l:"D",w:"Drugs (NSAIDs, stimulants, steroids)"},{l:"M",w:"Miscellaneous (coarctation, sleep apnea)"}],note:"Screen if: young patient, resistant HTN (fails 3 drugs), or sudden onset."},
+{topic:"Cardiology",title:"Infective Endocarditis Features",acronym:"FROM JANE",letters:[{l:"F",w:"Fever (>38C, most common)"},{l:"R",w:"Roth spots (retinal hemorrhages)"},{l:"O",w:"Osler nodes (painful fingertip nodules)"},{l:"M",w:"Murmur (new regurgitant)"},{l:"J",w:"Janeway lesions (painless palmar erythema)"},{l:"A",w:"Anemia (normocytic, normochromic)"},{l:"N",w:"Nail-bed hemorrhages (splinter)"},{l:"E",w:"Emboli (systemic)"}],note:"Duke criteria: 2 major or 1 major + 3 minor or 5 minor = definite IE."},
+{topic:"Dermatology",title:"Melanoma ABCDE Criteria",acronym:"ABCDE",letters:[{l:"A",w:"Asymmetry"},{l:"B",w:"Border irregularity"},{l:"C",w:"Color variation (multiple colors)"},{l:"D",w:"Diameter >6mm"},{l:"E",w:"Evolution (changing mole)"}],note:"E (evolving) is the most important feature. Any changing mole = evaluation."},
+{topic:"Pharmacology",title:"Warfarin Interactions - Increases INR",acronym:"DEVICES",letters:[{l:"D",w:"Disulfiram"},{l:"E",w:"Erythromycin / metroNidazole (CYP inhibitors)"},{l:"V",w:"Valproate"},{l:"I",w:"Isoniazid"},{l:"C",w:"Cimetidine / fluConazole"},{l:"E",w:"Excess alcohol (acute)"},{l:"S",w:"Statins (some)"}],note:"CYP2C9 inhibitors increase warfarin levels causing INR rise and bleeding risk."},
+{topic:"Pharmacology",title:"Warfarin Interactions - Decreases INR",acronym:"PC BRAS",letters:[{l:"P",w:"Phenytoin (chronic)"},{l:"C",w:"Carbamazepine"},{l:"B",w:"Barbiturates"},{l:"R",w:"Rifampin (most potent inducer)"},{l:"A",w:"Avocados (vitamin K)"},{l:"S",w:"St. John Wort"}],note:"CYP2C9 inducers reduce warfarin levels causing INR fall and clot risk."},
+{topic:"Nephrology",title:"CKD Complications",acronym:"AEIOU",letters:[{l:"A",w:"Anemia (EPO deficiency)"},{l:"E",w:"Electrolytes (hyperkalemia, hyperphosphatemia)"},{l:"I",w:"Immune dysfunction (infection risk)"},{l:"O",w:"Osteodystrophy (renal bone disease)"},{l:"U",w:"Uremia (encephalopathy, pericarditis, platelet dysfunction)"}],note:"Dialysis indications: any severe manifestation of AEIOU."},
+{topic:"Hematology",title:"DIC Triggers",acronym:"STOP Making Clots",letters:[{l:"S",w:"Sepsis (most common trigger)"},{l:"T",w:"Trauma (massive)"},{l:"O",w:"Obstetric complications (abruption, amniotic fluid embolism)"},{l:"P",w:"Pancreatitis"},{l:"M",w:"Malignancy (especially APL/M3)"},{l:"C",w:"Clots + Bleeding simultaneously (the DIC paradox)"}],note:"DIC labs: low platelets, low fibrinogen, elevated D-dimer, elevated PT/aPTT, schistocytes."},
+{topic:"Neurology",title:"Horner Syndrome",acronym:"PAM",letters:[{l:"P",w:"Ptosis (partial upper lid drooping)"},{l:"A",w:"Anhidrosis (loss of sweating on face)"},{l:"M",w:"Miosis (constricted pupil)"}],note:"3-neuron pathway lesion. Causes: Pancoast tumor, carotid dissection, brainstem lesion, cord syrinx."},
+{topic:"Orthopedics",title:"Compartment Syndrome 6 Ps",acronym:"6 Ps",letters:[{l:"P",w:"Pain (severe, disproportionate)"},{l:"P",w:"Pressure (tense compartment)"},{l:"P",w:"Paralysis (weakness)"},{l:"P",w:"Paresthesias (early sign)"},{l:"P",w:"Pallor"},{l:"P",w:"Pulselessness (late and ominous)"}],note:"Compartment pressure >30 mmHg = EMERGENT fasciotomy. Do not wait for pulse loss!"},
+{topic:"Endocrinology",title:"MEN Syndromes",acronym:"MEN 1-2A-2B",letters:[{l:"1",w:"MEN1: Pituitary + Parathyroid + Pancreas (3 Ps)"},{l:"2A",w:"MEN2A: Medullary Thyroid Cancer + Pheo + Parathyroid"},{l:"2B",w:"MEN2B: MTC + Pheo + Mucosal neuromas + Marfanoid"}],note:"MEN1=menin gene. MEN2A/B=RET proto-oncogene. Prophylactic thyroidectomy in MEN2 mutation carriers."},
+];
+
+// ── DIFF DX FUNCTIONS ──────────────────────────────────────────────────────
+let selSyms=[], selDrugs=[];
+function addSymptom(){const inp=document.getElementById('sym-input');const v=inp.value.trim();if(!v||selSyms.includes(v.toLowerCase()))return;selSyms.push(v.toLowerCase());inp.value='';renderSymTags();}
+function removeSymptom(s){selSyms=selSyms.filter(x=>x!==s);renderSymTags();}
+function renderSymTags(){document.getElementById('sym-tags').innerHTML=selSyms.map(s=>`<span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:12px;background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.3);color:#7dd3fc">${s}<button onclick="removeSymptom('${s}')" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:13px;line-height:1;padding:0">×</button></span>`).join('');}
+function runDiff(){
+const res=document.getElementById('diff-results');
+if(!selSyms.length){res.innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">Add at least one symptom.</div>';return;}
+const scores=[];
+Object.entries(DB).forEach(([name,data])=>{
+const cs=(data.symptoms||[]).map(s=>s.toLowerCase());
+let matches=0,matched=[];
+selSyms.forEach(sym=>{if(cs.some(c=>c.includes(sym)||sym.split(' ').some(w=>w.length>3&&c.includes(w)))){matches++;matched.push(sym);}});
+if(matches>0)scores.push({name,data,matches,matched,pct:Math.round(matches/selSyms.length*100)});
+});
+scores.sort((a,b)=>b.matches-a.matches);
+if(!scores.length){res.innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">No matching conditions found. Try different symptoms.</div>';return;}
+const cc_=v=>CC[v]||'#64748b';
+res.innerHTML=`<div style="font-size:10px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">${scores.length} conditions matched</div>`+scores.slice(0,12).map(s=>{const sc=s.pct>=70?'rgba(239,68,68,0.15);color:#f87171':s.pct>=40?'rgba(251,191,36,0.15);color:#fbbf24':'rgba(34,197,94,0.15);color:#4ade80';const c=cc_(s.data.category);return`<div onclick="searchCondition('${s.name.replace(/'/g,"\'")}');showTab('search')" style="padding:11px 13px;border-radius:9px;margin-bottom:7px;cursor:pointer;border:1px solid rgba(14,165,233,0.15);background:rgba(14,165,233,0.04);transition:all 0.18s"><span style="float:right;font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;background:${sc}">${s.pct}%</span><div style="font-size:13px;font-weight:600;color:${c}">${s.name}</div><div style="font-size:11px;color:#64748b;margin-top:2px">${s.data.category} · ${s.data.icd||'—'}</div><div style="font-size:11px;color:#64748b;margin-top:3px">Matched: ${s.matched.join(', ')}</div></div>`;}).join('');
+}
+
+// ── DRUG INTERACTION FUNCTIONS ─────────────────────────────────────────────
+function addDrug(){const inp=document.getElementById('drug-input');const v=inp.value.trim().toLowerCase();if(!v||selDrugs.includes(v))return;selDrugs.push(v);inp.value='';renderDrugTags();}
+function removeDrug(d){selDrugs=selDrugs.filter(x=>x!==d);renderDrugTags();}
+function renderDrugTags(){document.getElementById('drug-tags').innerHTML=selDrugs.map(d=>`<span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:12px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);color:#c4b5fd">${d}<button onclick="removeDrug('${d}')" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:13px;line-height:1;padding:0">×</button></span>`).join('');}
+function checkInteractions(){
+const res=document.getElementById('drug-results');
+if(selDrugs.length<2){res.innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">Add at least 2 medications to check.</div>';return;}
+const found=[];
+INTERACTIONS.forEach(ix=>{const match=ix.drugs.filter(d=>selDrugs.some(sd=>sd.includes(d)||d.includes(sd))).length;if(match>=2)found.push(ix);});
+if(!found.length){res.innerHTML='<div style="padding:12px;background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:10px;color:#4ade80;font-size:13px"><strong>No major interactions found</strong> in our database. Always verify with a pharmacist or clinical decision support tool.</div>';return;}
+found.sort((a,b)=>{const o={high:0,moderate:1,low:2};return o[a.sev]-o[b.sev];});
+res.innerHTML=`<div style="font-size:10px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">${found.length} interaction${found.length!==1?'s':''} found</div>`+found.map(i=>{const cls=i.sev==='high'?'rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2)':i.sev==='moderate'?'rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.2)':'rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2)';const bc=i.sev==='high'?'rgba(239,68,68,0.2);color:#f87171':i.sev==='moderate'?'rgba(251,191,36,0.2);color:#fbbf24':'rgba(34,197,94,0.2);color:#4ade80';return`<div style="padding:11px 13px;border-radius:9px;margin-bottom:7px;background:${cls}"><span style="display:inline-block;padding:2px 7px;border-radius:12px;font-size:10px;font-weight:700;margin-bottom:5px;background:${bc}">${i.sev.toUpperCase()}</span><div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:3px">${i.title}</div><div style="font-size:12px;color:#94a3b8;line-height:1.5">${i.desc}</div></div>`;}).join('');
+}
+
+// ── LAB FUNCTIONS ──────────────────────────────────────────────────────────
+function buildLabs(filter=''){
+const q=filter.toLowerCase();
+let html='';
+Object.entries(LABS).forEach(([sec,tests])=>{
+const fl=tests.filter(t=>!q||t.t.toLowerCase().includes(q)||t.n.toLowerCase().includes(q)||t.r.toLowerCase().includes(q));
+if(!fl.length)return;
+html+=`<div style="margin-bottom:16px"><div style="font-size:12px;font-weight:700;color:#38bdf8;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid rgba(14,165,233,0.15)">${sec}</div>`;
+html+=`<div style="display:grid;grid-template-columns:1fr 1fr 1.2fr;padding:5px 0;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim)"><span>Test</span><span>Reference Range</span><span>Clinical Note</span></div>`;
+fl.forEach(t=>{html+=`<div style="display:grid;grid-template-columns:1fr 1fr 1.2fr;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:12px"><div style="color:#e2e8f0;font-weight:500">${t.t}</div><div style="color:#38bdf8;font-family:monospace;font-size:11px">${t.r}</div><div style="color:#64748b;font-size:11px">${t.n}</div></div>`;});
+html+='</div>';
+});
+document.getElementById('labs-content').innerHTML=html||`<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">No results for "${filter}"</div>`;
+}
+function filterLabs(v){buildLabs(v);}
+
+// ── MNEMONIC FUNCTIONS ─────────────────────────────────────────────────────
+function buildMnemonics(filter='All'){
+const topics=[...new Set(MNEMONICS.map(m=>m.topic))];
+document.getElementById('mn-filters').innerHTML=['All',...topics].map(t=>`<button onclick="buildMnemonics('${t}')" style="padding:4px 10px;border-radius:20px;cursor:pointer;font-size:11px;font-weight:500;font-family:inherit;transition:all 0.18s;border:1px solid ${t===filter?'rgba(14,165,233,0.4)':'rgba(255,255,255,0.07)'};background:${t===filter?'rgba(14,165,233,0.12)':'rgba(255,255,255,0.03)'};color:${t===filter?'#38bdf8':'var(--muted)'}">${t}</button>`).join('');
+const fl=filter==='All'?MNEMONICS:MNEMONICS.filter(m=>m.topic===filter);
+document.getElementById('mnemonics-content').innerHTML=fl.map((m,i)=>`<div onclick="toggleMn(${i})" style="background:rgba(15,20,35,0.8);border:1px solid rgba(14,165,233,0.12);border-radius:13px;padding:14px;margin-bottom:8px;cursor:pointer"><div style="font-size:11px;color:#38bdf8;font-weight:600;margin-bottom:3px">${m.topic}</div><div style="font-size:14px;font-weight:600;color:#e2e8f0;margin-bottom:5px">${m.title}</div><div style="font-size:22px;font-weight:700;color:#38bdf8;font-family:'Playfair Display',serif;letter-spacing:0.12em;margin-bottom:7px">${m.acronym}</div><div id="mne${i}" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid rgba(14,165,233,0.15)">${m.letters.map(l=>`<div style="display:flex;gap:8px;padding:3px 0;font-size:13px"><span style="font-weight:700;color:#38bdf8;width:18px;flex-shrink:0">${l.l}</span><span style="color:#e2e8f0">${l.w}</span></div>`).join('')}${m.note?`<div style="font-size:11px;color:#64748b;margin-top:6px;line-height:1.5">&#128161; ${m.note}</div>`:''}</div></div>`).join('');
+}
+function toggleMn(i){const e=document.getElementById('mne'+i);if(e)e.style.display=e.style.display==='none'?'block':'none';}
+
+// Update showTab to handle new tabs
+const _origShowTab = showTab;
+function showTab(tab){
+_origShowTab(tab);
+const newTabs=['diff','drugs','labs','mnemonics'];
+newTabs.forEach(t=>{
+const el=document.getElementById(t+'-tab');
+if(el)el.classList.toggle('hidden',t!==tab);
+});
+if(tab==='labs')buildLabs();
+if(tab==='mnemonics')buildMnemonics();
+}
+
+// Init new features
+buildLabs();
+buildMnemonics();
+
+// ── STRIPE SUBSCRIPTION SYSTEM ─────────────────────────────────────────────
+// REPLACE 'pk_test_YOUR_KEY_HERE' with your actual Stripe publishable key
+// Get it from: stripe.com → Developers → API Keys
+const STRIPE_PK = 'pk_test_51RY1maQlJJduZYzaLluBvNhKOcpS8Az2pdPFc75Z6c88qqApf1LVEUJhHuRiPpIxqDw1CFV8oJ8sQ7TaYEjHm3AX00CPKOQHAV';
+// REPLACE with your actual Stripe Price ID for the $4.99/month plan
+// Create it in: stripe.com → Products → Add Product → $4.99/month recurring
+const STRIPE_PRICE_ID = 'price_1TSylEQlJJduZYzaSaQvv37s';
+
+let stripe = null, cardElement = null, isPro = false, trialDaysLeft = 0;
+
+// Check subscription status from localStorage
+function checkSubStatus() {
+  try {
+    const sub = JSON.parse(localStorage.getItem('sy_sub') || 'null');
+    if (!sub) return false;
+    const now = Date.now();
+    // Check if trial or paid subscription is active
+    if (sub.status === 'trial' && sub.trialEnd > now) {
+      isPro = true;
+      trialDaysLeft = Math.ceil((sub.trialEnd - now) / (1000 * 60 * 60 * 24));
+      showTrialBanner(`Free trial: ${trialDaysLeft} day${trialDaysLeft !== 1 ? 's' : ''} remaining`);
+      return true;
+    }
+    if (sub.status === 'active') {
+      isPro = true;
+      showTrialBanner('Symptara Pro active');
+      return true;
+    }
+    // Trial expired
+    if (sub.status === 'trial' && sub.trialEnd <= now) {
+      localStorage.removeItem('sy_sub');
+      return false;
+    }
+  } catch(e) {}
+  return false;
+}
+
+function showTrialBanner(msg) {
+  const banner = document.getElementById('trial-banner');
+  const text = document.getElementById('trial-text');
+  if (banner && text) { text.textContent = msg; banner.classList.add('active'); }
+}
+
+function openPaywall(context) {
+  document.getElementById('paywall-overlay').classList.remove('hidden');
+  showStep(1);
+  // Init Stripe card element
+  setTimeout(() => {
+    if (!stripe) {
+      try {
+        stripe = Stripe(STRIPE_PK);
+        const elements = stripe.elements({
+          appearance: {
+            theme: 'night',
+            variables: { colorPrimary: '#0ea5e9', colorBackground: '#0d1220', colorText: '#e2e8f0', fontFamily: 'DM Sans, sans-serif' }
+          }
+        });
+        cardElement = elements.create('card', { style: { base: { fontSize: '14px', color: '#e2e8f0', '::placeholder': { color: '#475569' } } } });
+      } catch(e) { console.log('Stripe not initialized - add your publishable key'); }
+    }
+  }, 100);
+}
+
+function closePaywall() {
+  document.getElementById('paywall-overlay').classList.add('hidden');
+}
+
+function showStep(n) {
+  [1,2,3].forEach(i => {
+    const el = document.getElementById('paywall-step-' + i);
+    if (el) el.classList.toggle('hidden', i !== n);
+  });
+  // Mount card element on step 2
+  if (n === 2 && stripe && cardElement) {
+    setTimeout(() => {
+      try { cardElement.mount('#stripe-card-element'); } catch(e) {}
+    }, 100);
+  }
+}
+
+function startTrial() {
+  // Check if Stripe key is configured
+  if (STRIPE_PK === 'pk_test_51RY1maQlJJduZYzaLluBvNhKOcpS8Az2pdPFc75Z6c88qqApf1LVEUJhHuRiPpIxqDw1CFV8oJ8sQ7TaYEjHm3AX00CPKOQHAV') {
+    // Demo mode - for testing before Stripe is connected
+    alert('Demo Mode: In production, this connects to Stripe. To activate, add your Stripe publishable key and price ID to the code.');
+    activateDemoTrial();
+    return;
+  }
+  showStep(2);
+}
+
+function activateDemoTrial() {
+  // Demo trial activation (use until Stripe is configured)
+  const trialEnd = Date.now() + (7 * 24 * 60 * 60 * 1000);
+  localStorage.setItem('sy_sub', JSON.stringify({ status: 'trial', trialEnd, email: 'demo@symptara.com', startedAt: Date.now() }));
+  isPro = true;
+  showStep(3);
+  setTimeout(() => { closePaywall(); unlockPro(); checkSubStatus(); }, 2000);
+}
+
+async function submitPayment() {
+  const email = document.getElementById('user-email').value.trim();
+  const errEl = document.getElementById('stripe-error');
+  const btn = document.getElementById('pay-btn');
+
+  if (!email || !email.includes('@')) {
+    errEl.textContent = 'Please enter a valid email address.';
+    errEl.style.display = 'block'; return;
+  }
+  if (!stripe || !cardElement) {
+    errEl.textContent = 'Payment system not ready. Please try again.';
+    errEl.style.display = 'block'; return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+  errEl.style.display = 'none';
+
+  try {
+    // Create payment method
+    const { paymentMethod, error } = await stripe.createPaymentMethod({
+      type: 'card', card: cardElement,
+      billing_details: { email }
+    });
+
+    if (error) {
+      errEl.textContent = error.message;
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Start 7-Day Free Trial';
+      return;
+    }
+
+    // NOTE: In production, send paymentMethod.id + email to your backend
+    // Your backend creates the Stripe subscription with trial_period_days: 7
+    // For now, we simulate success and store trial locally
+    // Backend endpoint example: POST /api/create-subscription
+    // { paymentMethodId: paymentMethod.id, email, priceId: STRIPE_PRICE_ID }
+
+    console.log('Payment method created:', paymentMethod.id);
+    console.log('Email:', email);
+
+    // Store trial locally (replace with actual backend confirmation)
+    const trialEnd = Date.now() + (7 * 24 * 60 * 60 * 1000);
+    localStorage.setItem('sy_sub', JSON.stringify({
+      status: 'trial', trialEnd, email,
+      paymentMethodId: paymentMethod.id,
+      startedAt: Date.now()
+    }));
+
+    isPro = true;
+    showStep(3);
+    setTimeout(() => { closePaywall(); unlockPro(); checkSubStatus(); }, 2000);
+
+  } catch(e) {
+    errEl.textContent = 'Something went wrong. Please try again.';
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Start 7-Day Free Trial';
+  }
+}
+
+function unlockPro() {
+  isPro = true;
+  // Show all pro tabs
+  ['diff','drugs','labs','mnemonics'].forEach(tab => {
+    const btn = document.getElementById('tab-' + tab);
+    if (btn) {
+      btn.style.opacity = '1';
+      btn.style.pointerEvents = 'auto';
+    }
+  });
+  // Remove lock icons
+  document.querySelectorAll('.pro-badge').forEach(b => {
+    b.style.background = 'linear-gradient(135deg,rgba(34,197,94,0.2),rgba(16,185,129,0.2))';
+    b.style.borderColor = 'rgba(34,197,94,0.3)';
+    b.style.color = '#4ade80';
+    b.textContent = 'PRO';
+  });
+}
+
+function lockProTabs() {
+  ['diff','drugs','labs','mnemonics'].forEach(tab => {
+    const btn = document.getElementById('tab-' + tab);
+    if (btn) {
+      btn.style.opacity = '0.5';
+      btn.style.pointerEvents = 'auto'; // still clickable to trigger paywall
+    }
+  });
+}
+
+// Override showTab to intercept pro tabs
+const _baseShowTab = showTab;
+function showTab(tab) {
+  const proTabs = ['diff','drugs','labs','mnemonics'];
+  if (proTabs.includes(tab) && !isPro) {
+    openPaywall('feature');
+    return;
+  }
+  _baseShowTab(tab);
+}
+
+// Init subscription system
+function initSubscription() {
+  const hasSub = checkSubStatus();
+  if (hasSub) {
+    unlockPro();
+  } else {
+    lockProTabs();
+  }
+}
+
+// Run on load
+setTimeout(initSubscription, 100);
+
+// Close paywall on overlay click
+document.addEventListener('click', e => {
+  if (e.target.id === 'paywall-overlay') closePaywall();
 });
 </script>
 </body>
