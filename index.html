@@ -7,11 +7,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0d12; --bg2: #111620; --bg3: #1a2030; --card: #141920; --card2: #1c2333;
+    --bg: #0a0d12; --bg2: #111620; --bg3: #1a2030; --card: #141920;
     --border: #242d3f; --cyan: #00c8e0; --cyan-dim: rgba(0,200,224,0.12);
-    --cyan-glow: rgba(0,200,224,0.25); --red: #e05252; --red-dim: rgba(224,82,82,0.15);
-    --yellow: #f0b429; --yellow-dim: rgba(240,180,41,0.12); --green: #3ecf8e;
-    --green-dim: rgba(62,207,142,0.12); --purple: #9b6dff; --purple-dim: rgba(155,109,255,0.12);
+    --red: #e05252; --red-dim: rgba(224,82,82,0.15);
+    --yellow: #f0b429; --yellow-dim: rgba(240,180,41,0.12);
+    --green: #3ecf8e; --green-dim: rgba(62,207,142,0.12);
+    --purple: #9b6dff; --purple-dim: rgba(155,109,255,0.12);
     --orange: #ff7b3a; --text: #e8edf5; --text-dim: #8a96aa; --text-dimmer: #55627a;
     --radius: 14px; --radius-sm: 8px;
   }
@@ -33,10 +34,9 @@
   .search-bar:focus-within { border-color: var(--cyan); }
   .search-bar input { flex: 1; background: none; border: none; outline: none; font-family: 'Outfit', sans-serif; font-size: 16px; color: var(--text); }
   .search-bar input::placeholder { color: var(--text-dimmer); }
-  .search-btn { background: var(--cyan); color: #000; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; border: none; cursor: pointer; padding: 9px 18px; border-radius: 50px; transition: opacity 0.2s; }
-  .search-btn:active { opacity: 0.8; }
+  .search-btn { background: var(--cyan); color: #000; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; border: none; cursor: pointer; padding: 9px 18px; border-radius: 50px; }
   .disclaimer-bar { margin: 10px 14px 0; background: rgba(240,180,41,0.08); border: 1px solid rgba(240,180,41,0.2); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 11px; color: #b89a3a; display: flex; align-items: flex-start; gap: 8px; flex-shrink: 0; }
-  .results-area { flex: 1; overflow-y: auto; padding: 12px 14px 20px; scroll-behavior: smooth; }
+  .results-area { flex: 1; overflow-y: auto; padding: 12px 14px 20px; }
   .results-area::-webkit-scrollbar { width: 0; }
   .condition-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; animation: slideUp 0.3s ease; }
   @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
@@ -51,7 +51,7 @@
   .tag-icd { background: var(--bg3); color: var(--text-dim); border: 1px solid var(--border); }
   .tag-db { background: var(--green-dim); color: var(--green); }
   .tag-ai { background: var(--purple-dim); color: var(--purple); }
-  .bookmark-btn { margin-left: auto; background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 20px; transition: color 0.2s; padding: 2px 4px; }
+  .bookmark-btn { margin-left: auto; background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 20px; padding: 2px 4px; }
   .bookmark-btn.saved { color: var(--cyan); }
   .condition-name { font-size: 28px; font-weight: 700; line-height: 1.1; margin-bottom: 10px; }
   .condition-desc { font-size: 15px; font-weight: 300; color: #c0c8d8; line-height: 1.55; margin-bottom: 14px; font-family: 'DM Sans', sans-serif; }
@@ -94,11 +94,13 @@
   .empty-title { font-size: 20px; font-weight: 600; color: var(--text-dim); }
   .empty-sub { font-size: 14px; color: var(--text-dimmer); line-height: 1.5; max-width: 260px; font-family: 'DM Sans', sans-serif; }
   .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px; }
-  .cat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 14px; cursor: pointer; transition: border-color 0.2s; display: flex; flex-direction: column; gap: 8px; }
+  .cat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 14px; cursor: pointer; display: flex; flex-direction: column; gap: 8px; }
   .cat-card:active { border-color: var(--cyan); }
   .cat-icon { font-size: 24px; }
   .cat-name { font-size: 14px; font-weight: 600; }
   .cat-count { font-size: 12px; color: var(--text-dimmer); }
+  .back-btn-wrap { padding: 10px 14px 0; flex-shrink: 0; }
+  .back-btn { background: var(--bg2); border: 1px solid var(--border); border-radius: 50px; padding: 7px 16px; font-size: 13px; font-weight: 600; color: var(--text-dim); cursor: pointer; display: flex; align-items: center; gap: 6px; width: fit-content; }
   .bookmark-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; }
   .bk-icon-wrap { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
   .bk-name { font-size: 16px; font-weight: 600; }
@@ -110,7 +112,7 @@
   .diffdx-input { width: 100%; background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 12px 14px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); resize: none; outline: none; min-height: 90px; transition: border-color 0.2s; }
   .diffdx-input:focus { border-color: var(--cyan); }
   .run-btn { width: 100%; background: var(--cyan); color: #000; font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700; border: none; cursor: pointer; padding: 13px; border-radius: var(--radius); margin-top: 10px; }
-  .dx-result-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start; }
+  .dx-result-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; display: flex; gap: 12px; }
   .dx-rank { font-size: 13px; font-weight: 700; color: var(--cyan); min-width: 28px; padding-top: 2px; }
   .dx-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
   .dx-reason { font-size: 13px; color: var(--text-dim); line-height: 1.5; font-family: 'DM Sans', sans-serif; }
@@ -119,8 +121,7 @@
   .dx-med { background: var(--yellow-dim); color: var(--yellow); }
   .dx-low { background: var(--green-dim); color: var(--green); }
   .drug-search-wrap { padding: 12px 14px 0; flex-shrink: 0; }
-  .drug-search-bar { display: flex; align-items: center; gap: 10px; background: var(--bg2); border: 1.5px solid var(--border); border-radius: 50px; padding: 10px 6px 10px 16px; transition: border-color 0.2s; }
-  .drug-search-bar:focus-within { border-color: var(--cyan); }
+  .drug-search-bar { display: flex; align-items: center; gap: 10px; background: var(--bg2); border: 1.5px solid var(--border); border-radius: 50px; padding: 10px 6px 10px 16px; }
   .drug-search-bar input { flex: 1; background: none; border: none; outline: none; font-family: 'Outfit', sans-serif; font-size: 16px; color: var(--text); }
   .drug-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
   .drug-header { padding: 14px; display: flex; align-items: flex-start; justify-content: space-between; cursor: pointer; }
@@ -135,25 +136,12 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .fh-sub-tabs { display: flex; gap: 6px; padding: 10px 14px 0; flex-shrink: 0; overflow-x: auto; }
   .fh-sub-tabs::-webkit-scrollbar { display: none; }
-  .fh-stab { font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 50px; border: 1px solid var(--border); background: var(--bg2); color: var(--text-dimmer); cursor: pointer; white-space: nowrap; transition: all 0.2s; flex-shrink: 0; }
+  .fh-stab { font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 50px; border: 1px solid var(--border); background: var(--bg2); color: var(--text-dimmer); cursor: pointer; white-space: nowrap; flex-shrink: 0; }
   .fh-stab.active { background: var(--purple-dim); border-color: rgba(155,109,255,0.4); color: var(--purple); }
-  .risk-banner { margin: 10px 14px 0; border-radius: var(--radius); padding: 13px 14px; display: flex; align-items: flex-start; gap: 10px; flex-shrink: 0; }
-  .risk-banner.high { background: var(--red-dim); border: 1px solid rgba(224,82,82,0.3); }
-  .risk-banner.med { background: var(--yellow-dim); border: 1px solid rgba(240,180,41,0.3); }
-  .risk-banner.low { background: var(--green-dim); border: 1px solid rgba(62,207,142,0.3); }
-  .risk-icon { font-size: 20px; flex-shrink: 0; }
-  .risk-title { font-size: 13px; font-weight: 700; }
-  .risk-sub { font-size: 12px; opacity: 0.8; margin-top: 2px; font-family: 'DM Sans', sans-serif; line-height: 1.4; }
-  .risk-banner.high .risk-title { color: var(--red); }
-  .risk-banner.high .risk-sub { color: #d07070; }
-  .risk-banner.med .risk-title { color: var(--yellow); }
-  .risk-banner.med .risk-sub { color: #b89a3a; }
-  .risk-banner.low .risk-title { color: var(--green); }
-  .risk-banner.low .risk-sub { color: #5a9e7a; }
   .tree-wrap { padding: 14px; }
   .tree-gen-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dimmer); margin-bottom: 8px; }
   .tree-row { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-  .tree-member { flex: 1; min-width: 120px; max-width: 180px; background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 11px 12px; cursor: pointer; transition: border-color 0.2s; position: relative; }
+  .tree-member { flex: 1; min-width: 120px; max-width: 180px; background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 11px 12px; cursor: pointer; position: relative; }
   .tree-member.has-conditions { border-color: rgba(155,109,255,0.4); }
   .tree-member.deceased { opacity: 0.7; }
   .tm-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 7px; }
@@ -161,8 +149,7 @@
   .tm-rel { font-size: 11px; color: var(--text-dimmer); margin-top: 1px; }
   .tm-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
   .tm-tag { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
-  .add-member-btn { flex: 1; min-width: 120px; max-width: 180px; background: none; border: 1.5px dashed var(--border); border-radius: var(--radius); padding: 11px 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text-dimmer); font-size: 12px; font-weight: 500; min-height: 90px; }
-  .plus { font-size: 22px; line-height: 1; }
+  .add-member-btn { flex: 1; min-width: 120px; max-width: 180px; background: none; border: 1.5px dashed var(--border); border-radius: var(--radius); padding: 11px 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text-dimmer); font-size: 12px; min-height: 90px; }
   .risk-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
   .risk-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
   .risk-dot.high { background: var(--red); box-shadow: 0 0 6px var(--red); }
@@ -221,7 +208,7 @@
   .paywall-title { font-size: 24px; font-weight: 800; text-align: center; line-height: 1.2; }
   .paywall-sub { font-size: 14px; color: var(--text-dim); text-align: center; margin: 8px 0 20px; font-family: 'DM Sans', sans-serif; line-height: 1.5; }
   .paywall-features { margin-bottom: 22px; display: flex; flex-direction: column; gap: 10px; }
-  .pw-feature { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--text); }
+  .pw-feature { display: flex; align-items: center; gap: 12px; font-size: 14px; }
   .pw-feature-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
   .pw-feature-text { font-weight: 500; }
   .pw-feature-sub { font-size: 12px; color: var(--text-dimmer); font-family: 'DM Sans', sans-serif; }
@@ -230,7 +217,7 @@
   .pw-price-main { font-size: 22px; font-weight: 800; }
   .pw-price-sub { font-size: 12px; color: var(--text-dimmer); margin-top: 1px; font-family: 'DM Sans', sans-serif; }
   .pw-trial-badge { background: var(--green-dim); border: 1px solid rgba(62,207,142,0.3); color: var(--green); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 20px; }
-  .paywall-cta { width: 100%; background: linear-gradient(135deg, var(--cyan) 0%, #0099b8 100%); color: #000; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 800; border: none; cursor: pointer; padding: 16px; border-radius: var(--radius); margin-bottom: 10px; letter-spacing: 0.01em; }
+  .paywall-cta { width: 100%; background: linear-gradient(135deg, var(--cyan) 0%, #0099b8 100%); color: #000; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 800; border: none; cursor: pointer; padding: 16px; border-radius: var(--radius); margin-bottom: 10px; }
   .paywall-legal { font-size: 11px; color: var(--text-dimmer); text-align: center; line-height: 1.5; font-family: 'DM Sans', sans-serif; }
   .paywall-legal a { color: var(--text-dim); text-decoration: underline; }
   .trial-banner { margin: 8px 14px 0; background: var(--green-dim); border: 1px solid rgba(62,207,142,0.25); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 12px; color: var(--green); display: flex; align-items: center; gap: 8px; flex-shrink: 0; font-weight: 600; }
@@ -275,7 +262,8 @@
       </div>
     </div>
     <div id="resultState" style="display:none;flex:1;overflow:hidden;flex-direction:column;">
-      <div id="resultConditionWrap" style="flex-shrink:0;padding:12px 14px 0;"></div>
+      <div class="back-btn-wrap"><button class="back-btn" onclick="goHome()">← Back</button></div>
+      <div id="resultConditionWrap" style="flex-shrink:0;padding:8px 14px 0;"></div>
       <div class="sub-tabs">
         <div class="sub-tab active" onclick="switchSubTab(this,'overview')">Overview</div>
         <div class="sub-tab" onclick="switchSubTab(this,'symptoms')">Symptoms</div>
@@ -371,7 +359,7 @@
         <div class="pw-trial-badge">7 Days Free</div>
       </div>
       <button class="paywall-cta" onclick="startTrial()">Start Free Trial →</button>
-      <div class="paywall-legal">By continuing you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.<br>Subscription auto-renews at $4.99/month after the 7-day trial unless cancelled.<br>Managed through the App Store. <a href="#" onclick="restorePurchase()">Restore purchase</a></div>
+      <div class="paywall-legal">By continuing you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.<br>Subscription auto-renews at $4.99/month after the 7-day trial unless cancelled.<br><a href="#" onclick="restorePurchase()">Restore purchase</a></div>
     </div>
   </div>
 
@@ -436,12 +424,12 @@ const DB = {
   },
   migraine:{
     name:"Migraine",icd:"G43",category:"neurological",categoryLabel:"Neurological",source:"database",
-    desc:"A primary headache disorder characterized by recurrent moderate-to-severe headaches, often unilateral and pulsating, lasting 4–72 hours.",
-    alert:"<strong>When to seek care:</strong> Seek emergency care for 'thunderclap' headache, headache with fever and neck stiffness, or new neurological deficits.",
+    desc:"A primary headache disorder characterized by recurrent moderate-to-severe headaches, often unilateral and pulsating, lasting 4-72 hours.",
+    alert:"<strong>When to seek care:</strong> Seek emergency care for thunderclap headache, headache with fever and neck stiffness, or new neurological deficits.",
     prevalence:"~1 billion people worldwide",
     causes:[
       {title:"Cortical Spreading Depression",body:"A wave of electrical activity followed by suppression that spreads across the cortex, believed to trigger migraine aura."},
-      {title:"Trigeminal Nerve Activation",body:"Activation of the trigeminovascular system releases inflammatory neuropeptides (CGRP) that cause vasodilation and pain."},
+      {title:"Trigeminal Nerve Activation",body:"Activation of the trigeminovascular system releases inflammatory neuropeptides that cause vasodilation and pain."},
       {title:"Triggers",body:"Stress, hormonal changes, sleep disruption, certain foods, strong sensory stimuli, and weather changes."},
       {title:"Genetics",body:"Strong familial pattern; approximately 50% concordance in identical twins."}
     ],
@@ -452,8 +440,8 @@ const DB = {
     },
     meds:[
       {name:"Sumatriptan",generic:"Sumatriptan Succinate",cls:"Triptan",clsColor:"purple",use:"Abortive therapy. Selectively constricts intracranial blood vessels and inhibits neuropeptide release.",warning:"Contraindicated in cardiovascular disease. Serotonin syndrome risk with SSRIs."},
-      {name:"Ubrogepant",generic:"Ubrogepant",cls:"CGRP Receptor Antagonist",clsColor:"cyan",use:"Newer acute treatment. Blocks CGRP receptor involved in migraine pain signaling.",warning:"Avoid with strong CYP3A4 inhibitors. Not studied in hepatic impairment."},
-      {name:"Topiramate",generic:"Topiramate",cls:"Anticonvulsant (Preventive)",clsColor:"orange",use:"Preventive therapy for frequent migraines. Reduces frequency through multiple mechanisms.",warning:"Cognitive side effects. Kidney stones. Teratogenic — avoid in pregnancy."}
+      {name:"Ubrogepant",generic:"Ubrogepant",cls:"CGRP Receptor Antagonist",clsColor:"cyan",use:"Newer acute treatment. Blocks CGRP receptor involved in migraine pain signaling.",warning:"Avoid with strong CYP3A4 inhibitors."},
+      {name:"Topiramate",generic:"Topiramate",cls:"Anticonvulsant (Preventive)",clsColor:"orange",use:"Preventive therapy for frequent migraines.",warning:"Cognitive side effects. Kidney stones. Teratogenic — avoid in pregnancy."}
     ],
     specialists:["Neurologist","Headache Specialist","Primary Care Physician"],
     related:[{name:"Tension Headache",cat:"Neurology",icd:"G44.2"},{name:"Cluster Headache",cat:"Neurology",icd:"G44.0"},{name:"Depression",cat:"Psychiatry",icd:"F33"}]
@@ -461,7 +449,7 @@ const DB = {
   asthma:{
     name:"Asthma",icd:"J45",category:"respiratory",categoryLabel:"Respiratory",source:"database",
     desc:"A chronic inflammatory disorder of the airways characterized by variable airflow obstruction, bronchial hyperresponsiveness, and reversible bronchoconstriction.",
-    alert:"<strong>When to seek care:</strong> Seek emergency care for severe dyspnea at rest, inability to speak in full sentences, or O₂ saturation <92%.",
+    alert:"<strong>When to seek care:</strong> Seek emergency care for severe dyspnea at rest, inability to speak in full sentences, or O2 saturation below 92%.",
     prevalence:"~262 million people worldwide",
     causes:[
       {title:"Airway Inflammation",body:"Chronic eosinophilic inflammation of the bronchial mucosa leads to airway remodeling and hyperresponsiveness."},
@@ -475,7 +463,7 @@ const DB = {
       warning:["Cyanosis","Unable to speak","Altered consciousness","Silent chest"]
     },
     meds:[
-      {name:"Albuterol",generic:"Salbutamol",cls:"SABA (Rescue Inhaler)",clsColor:"cyan",use:"Short-acting bronchodilator for acute symptom relief. Activates β2 receptors causing rapid smooth muscle relaxation.",warning:"Overuse indicates poor control. May cause tachycardia and tremor."},
+      {name:"Albuterol",generic:"Salbutamol",cls:"SABA (Rescue Inhaler)",clsColor:"cyan",use:"Short-acting bronchodilator for acute symptom relief.",warning:"Overuse indicates poor control. May cause tachycardia and tremor."},
       {name:"Fluticasone",generic:"Fluticasone Propionate",cls:"Inhaled Corticosteroid",clsColor:"green",use:"Cornerstone of persistent asthma management. Reduces airway inflammation long-term.",warning:"Risk of oral candidiasis — rinse mouth after use. Adrenal suppression at high doses."},
       {name:"Montelukast",generic:"Montelukast Sodium",cls:"Leukotriene Modifier",clsColor:"orange",use:"Add-on therapy. Blocks CysLT1 receptors, reducing inflammation and bronchoconstriction.",warning:"FDA Black Box Warning: neuropsychiatric events including suicidal ideation. Monitor closely."}
     ],
@@ -485,11 +473,11 @@ const DB = {
 };
 
 const DRUGS=[
-  {emoji:"💊",name:"Lisinopril",generic:"Lisinopril 5–40mg",cls:"ACE Inhibitor",clsColor:"cyan",use:"Treatment of hypertension, heart failure, and diabetic nephropathy.",mechanism:"Inhibits angiotensin-converting enzyme, reducing angiotensin II production and aldosterone secretion.",warning:"Angioedema (rare — discontinue immediately). Persistent dry cough. Avoid in pregnancy. Hyperkalemia risk.",interactions:"NSAIDs reduce efficacy. Potassium-sparing diuretics increase hyperkalemia risk."},
-  {emoji:"🔵",name:"Metformin",generic:"Metformin HCl 500–2000mg",cls:"Biguanide",clsColor:"green",use:"First-line pharmacotherapy for Type 2 Diabetes. Also used for PCOS and prediabetes.",mechanism:"Primarily reduces hepatic gluconeogenesis. Also improves peripheral insulin sensitivity.",warning:"Hold before IV contrast. Contraindicated if eGFR <30. Rare lactic acidosis risk.",interactions:"Alcohol potentiates lactic acidosis. Topiramate may increase metformin levels."},
-  {emoji:"🟠",name:"Atorvastatin",generic:"Atorvastatin Calcium 10–80mg",cls:"HMG-CoA Reductase Inhibitor",clsColor:"orange",use:"Primary and secondary prevention of cardiovascular events. Treatment of hypercholesterolemia.",mechanism:"Inhibits HMG-CoA reductase, the rate-limiting enzyme in hepatic cholesterol synthesis.",warning:"Myopathy/rhabdomyolysis risk. Elevated liver enzymes. Teratogenic.",interactions:"Grapefruit increases plasma levels. Gemfibrozil increases myopathy risk significantly."},
-  {emoji:"🟣",name:"Semaglutide",generic:"Semaglutide (Ozempic/Wegovy)",cls:"GLP-1 Receptor Agonist",clsColor:"purple",use:"Type 2 Diabetes management and obesity treatment.",mechanism:"Mimics endogenous GLP-1, stimulating glucose-dependent insulin secretion and slowing gastric emptying.",warning:"Pancreatitis risk. Contraindicated with MTC/MEN2A history. GI side effects.",interactions:"Delays absorption of oral medications. Monitor INR closely if on warfarin."},
-  {emoji:"🔴",name:"Warfarin",generic:"Warfarin Sodium",cls:"Vitamin K Antagonist",clsColor:"red",use:"Prevention and treatment of thromboembolic events (DVT, PE, A-fib, mechanical heart valves).",mechanism:"Inhibits vitamin K epoxide reductase, blocking synthesis of clotting factors II, VII, IX, X.",warning:"Narrow therapeutic index — frequent INR monitoring required. Major bleeding risk.",interactions:"Extremely extensive. Key: NSAIDs, antibiotics, antifungals, dietary vitamin K changes."}
+  {emoji:"💊",name:"Lisinopril",generic:"Lisinopril 5-40mg",cls:"ACE Inhibitor",clsColor:"cyan",use:"Treatment of hypertension, heart failure, and diabetic nephropathy.",mechanism:"Inhibits angiotensin-converting enzyme, reducing angiotensin II production.",warning:"Angioedema (rare). Persistent dry cough. Avoid in pregnancy. Hyperkalemia risk.",interactions:"NSAIDs reduce efficacy. Potassium-sparing diuretics increase hyperkalemia risk."},
+  {emoji:"🔵",name:"Metformin",generic:"Metformin HCl 500-2000mg",cls:"Biguanide",clsColor:"green",use:"First-line pharmacotherapy for Type 2 Diabetes.",mechanism:"Primarily reduces hepatic gluconeogenesis. Also improves peripheral insulin sensitivity.",warning:"Hold before IV contrast. Contraindicated if eGFR below 30. Rare lactic acidosis risk.",interactions:"Alcohol potentiates lactic acidosis. Topiramate may increase metformin levels."},
+  {emoji:"🟠",name:"Atorvastatin",generic:"Atorvastatin Calcium 10-80mg",cls:"HMG-CoA Reductase Inhibitor",clsColor:"orange",use:"Primary and secondary prevention of cardiovascular events.",mechanism:"Inhibits HMG-CoA reductase, the rate-limiting enzyme in hepatic cholesterol synthesis.",warning:"Myopathy/rhabdomyolysis risk. Elevated liver enzymes. Teratogenic.",interactions:"Grapefruit increases plasma levels. Gemfibrozil increases myopathy risk significantly."},
+  {emoji:"🟣",name:"Semaglutide",generic:"Semaglutide (Ozempic/Wegovy)",cls:"GLP-1 Receptor Agonist",clsColor:"purple",use:"Type 2 Diabetes management and obesity treatment.",mechanism:"Mimics endogenous GLP-1, stimulating glucose-dependent insulin secretion.",warning:"Pancreatitis risk. Contraindicated with MTC/MEN2A history. GI side effects.",interactions:"Delays absorption of oral medications. Monitor INR closely if on warfarin."},
+  {emoji:"🔴",name:"Warfarin",generic:"Warfarin Sodium",cls:"Vitamin K Antagonist",clsColor:"red",use:"Prevention and treatment of thromboembolic events.",mechanism:"Inhibits vitamin K epoxide reductase, blocking synthesis of clotting factors II, VII, IX, X.",warning:"Narrow therapeutic index. Frequent INR monitoring required. Major bleeding risk.",interactions:"Extremely extensive. Key: NSAIDs, antibiotics, antifungals, dietary vitamin K changes."}
 ];
 
 const clsColors={cyan:["rgba(0,200,224,0.12)","#00c8e0"],purple:["rgba(155,109,255,0.12)","#9b6dff"],green:["rgba(62,207,142,0.12)","#3ecf8e"],orange:["rgba(255,123,58,0.12)","#ff7b3a"],red:["rgba(224,82,82,0.15)","#e05252"]};
@@ -498,6 +486,12 @@ let currentCondition=null,currentSubTab="overview";
 let bookmarks=JSON.parse(localStorage.getItem("sym_bookmarks")||"{}");
 let notes=JSON.parse(localStorage.getItem("sym_notes")||"{}");
 
+function goHome(){
+  document.getElementById('homeState').style.display='flex';
+  document.getElementById('resultState').style.display='none';
+  document.getElementById('searchInput').value='';
+  currentCondition=null;
+}
 function switchMainTab(el,screen){
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
@@ -514,9 +508,7 @@ function switchBottom(el,screen){
   if(screen==='bookmarks')renderBookmarks();
   if(screen==='family')renderFHScreen();
 }
-
 document.getElementById('searchInput').addEventListener('keyup',e=>{if(e.key==='Enter')doSearch();});
-
 function doSearch(){
   const q=document.getElementById('searchInput').value.trim().toLowerCase();
   if(!q)return;
@@ -563,7 +555,7 @@ function showAIResult(query){
       <div class="condition-name">${capitalize(query)}</div>
       <div style="display:flex;align-items:center;gap:10px;padding:20px 0 10px;">
         <div class="spinner"></div>
-        <span style="color:var(--text-dim);font-size:14px;">Searching AI medical database…</span>
+        <span style="color:var(--text-dim);font-size:14px;">Searching AI medical database...</span>
       </div>
       <div class="disclaimer-bar" style="margin:0;"><span style="font-size:13px;flex-shrink:0;">⚠️</span><span>For informational purposes only. Always consult a qualified healthcare provider.</span></div>
     </div>`;
@@ -572,45 +564,18 @@ function showAIResult(query){
 }
 function switchSubTab(el,tab){
   document.querySelectorAll('.sub-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  currentSubTab=tab;
-  renderSubContent(tab);
+  el.classList.add('active');currentSubTab=tab;renderSubContent(tab);
 }
 function renderSubContent(tab){
-  const cond=currentCondition;
-  const el=document.getElementById('subContent');
-  if(!cond)return;
+  const cond=currentCondition;const el=document.getElementById('subContent');if(!cond)return;
   if(tab==='overview'){
-    el.innerHTML=`
-      <div class="section-label">Causes & Risk Factors</div>
-      ${cond.causes.map(c=>`<div class="accordion-item"><div class="accordion-header" onclick="toggleAcc(this)"><span>▶ ${c.title}</span><span class="acc-icon">›</span></div><div class="accordion-body">${c.body}</div></div>`).join('')}
-      <div class="section-label" style="margin-top:18px;">Recommended Specialists</div>
-      ${cond.specialists.map(s=>`<div class="specialist-chip"><span style="font-size:20px;">${specialistIcon(s)}</span><span>${s}</span></div>`).join('')}`;
+    el.innerHTML=`<div class="section-label">Causes & Risk Factors</div>${cond.causes.map(c=>`<div class="accordion-item"><div class="accordion-header" onclick="toggleAcc(this)"><span>▶ ${c.title}</span><span class="acc-icon">›</span></div><div class="accordion-body">${c.body}</div></div>`).join('')}<div class="section-label" style="margin-top:18px;">Recommended Specialists</div>${cond.specialists.map(s=>`<div class="specialist-chip"><span style="font-size:20px;">${specialistIcon(s)}</span><span>${s}</span></div>`).join('')}`;
   }else if(tab==='symptoms'){
-    el.innerHTML=`
-      <div class="section-label">Primary Symptoms</div>
-      <div class="chip-grid">${cond.symptoms.primary.map(s=>`<div class="chip primary">● ${s}</div>`).join('')}</div>
-      <div class="section-label">Associated Symptoms</div>
-      <div class="chip-grid">${cond.symptoms.secondary.map(s=>`<div class="chip">${s}</div>`).join('')}</div>
-      <div class="section-label" style="color:#e05252;">⚠ Warning Signs</div>
-      <div class="chip-grid">${cond.symptoms.warning.map(s=>`<div class="chip warning">⚡ ${s}</div>`).join('')}</div>`;
+    el.innerHTML=`<div class="section-label">Primary Symptoms</div><div class="chip-grid">${cond.symptoms.primary.map(s=>`<div class="chip primary">● ${s}</div>`).join('')}</div><div class="section-label">Associated Symptoms</div><div class="chip-grid">${cond.symptoms.secondary.map(s=>`<div class="chip">${s}</div>`).join('')}</div><div class="section-label" style="color:#e05252;">⚠ Warning Signs</div><div class="chip-grid">${cond.symptoms.warning.map(s=>`<div class="chip warning">⚡ ${s}</div>`).join('')}</div>`;
   }else if(tab==='meds'){
-    el.innerHTML=`
-      <div class="section-label">Medications</div>
-      ${cond.meds.map(m=>{const[bg,col]=clsColors[m.clsColor]||clsColors.cyan;return`<div class="med-card" onclick="this.classList.toggle('open')"><div class="med-card-header"><div><div class="med-name">${m.name}</div><div class="med-class" style="color:${col}">${m.cls}</div></div><div style="color:var(--text-dimmer)">▼</div></div><div class="med-card-body"><div class="med-row"><div class="med-label">Generic</div><div class="med-val">${m.generic}</div></div><div class="med-row"><div class="med-label">Use</div><div class="med-val">${m.use}</div></div><div class="warn-row med-row"><div class="med-label">⚠ Warning</div><div class="med-val">${m.warning}</div></div></div></div>`;}).join('')}
-      <div style="height:8px;"></div>
-      <div class="section-label">Personal Note</div>
-      <textarea id="noteInput" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);resize:none;outline:none;min-height:80px;" placeholder="Doctor's instructions, triggers, reminders...">${notes[cond.name]||''}</textarea>
-      <button onclick="saveNote()" style="background:var(--bg3);color:var(--cyan);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;border:1px solid rgba(0,200,224,0.3);border-radius:var(--radius-sm);padding:9px 18px;width:100%;margin-top:8px;cursor:pointer;">Save Note</button>`;
+    el.innerHTML=`<div class="section-label">Medications</div>${cond.meds.map(m=>{const[bg,col]=clsColors[m.clsColor]||clsColors.cyan;return`<div class="med-card" onclick="this.classList.toggle('open')"><div class="med-card-header"><div><div class="med-name">${m.name}</div><div class="med-class" style="color:${col}">${m.cls}</div></div><div style="color:var(--text-dimmer)">▼</div></div><div class="med-card-body"><div class="med-row"><div class="med-label">Generic</div><div class="med-val">${m.generic}</div></div><div class="med-row"><div class="med-label">Use</div><div class="med-val">${m.use}</div></div><div class="warn-row med-row"><div class="med-label">⚠ Warning</div><div class="med-val">${m.warning}</div></div></div></div>`;}).join('')}<div style="height:8px;"></div><div class="section-label">Personal Note</div><textarea id="noteInput" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);resize:none;outline:none;min-height:80px;" placeholder="Doctor's instructions, triggers, reminders...">${notes[cond.name]||''}</textarea><button onclick="saveNote()" style="background:var(--bg3);color:var(--cyan);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;border:1px solid rgba(0,200,224,0.3);border-radius:var(--radius-sm);padding:9px 18px;width:100%;margin-top:8px;cursor:pointer;">Save Note</button>`;
   }else if(tab==='details'){
-    el.innerHTML=`
-      <div class="section-label">ICD-10 Code</div>
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;">
-        <div style="font-size:24px;font-weight:800;color:var(--cyan);">${cond.icd}</div>
-        <div><div style="font-size:15px;font-weight:600;">${cond.name}</div><div style="font-size:12px;color:var(--text-dimmer);margin-top:2px;">${cond.categoryLabel}</div></div>
-      </div>
-      <div class="section-label">Related Conditions</div>
-      ${cond.related.map(r=>`<div class="related-chip" onclick="searchRelated('${r.name}')"><div><div class="related-name">${r.name}</div><div class="related-cat">${r.cat} · ${r.icd}</div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#55627a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>`).join('')}`;
+    el.innerHTML=`<div class="section-label">ICD-10 Code</div><div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;"><div style="font-size:24px;font-weight:800;color:var(--cyan);">${cond.icd}</div><div><div style="font-size:15px;font-weight:600;">${cond.name}</div><div style="font-size:12px;color:var(--text-dimmer);margin-top:2px;">${cond.categoryLabel}</div></div></div><div class="section-label">Related Conditions</div>${cond.related.map(r=>`<div class="related-chip" onclick="searchRelated('${r.name}')"><div><div class="related-name">${r.name}</div><div class="related-cat">${r.cat} · ${r.icd}</div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#55627a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>`).join('')}`;
   }
 }
 function searchRelated(name){document.getElementById('searchInput').value=name;doSearch();}
@@ -619,8 +584,7 @@ function toggleBookmark(name){
   if(bookmarks[name])delete bookmarks[name];
   else bookmarks[name]={name,category:currentCondition.categoryLabel,icd:currentCondition.icd,category_key:currentCondition.category};
   localStorage.setItem("sym_bookmarks",JSON.stringify(bookmarks));
-  const btn=document.getElementById('bkBtn');
-  if(btn)btn.classList.toggle('saved',!!bookmarks[name]);
+  const btn=document.getElementById('bkBtn');if(btn)btn.classList.toggle('saved',!!bookmarks[name]);
 }
 function saveNote(){
   if(!currentCondition)return;
@@ -643,15 +607,14 @@ function openBookmark(name){
 }
 function runDiffDx(){
   if(!isSubscribed()){openPaywall('diffdx');return;}
-  const input=document.getElementById('dxInput').value.trim();
-  if(!input)return;
+  const input=document.getElementById('dxInput').value.trim();if(!input)return;
   const el=document.getElementById('dxResults');
   el.innerHTML=`<div class="spinner-wrap"><div class="spinner"></div></div>`;
   fetchAIDiffDx(input,el);
 }
 function renderDrugs(filter){
   const el=document.getElementById('drugResults');
-  const filtered=filter?DRUGS.filter(d=>d.name.toLowerCase().includes(filter)||d.cls.toLowerCase().includes(filter)||d.generic.toLowerCase().includes(filter)):DRUGS;
+  const filtered=filter?DRUGS.filter(d=>d.name.toLowerCase().includes(filter)||d.cls.toLowerCase().includes(filter)):DRUGS;
   if(!filtered.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">💊</div><div class="empty-title">No results</div></div>`;return;}
   el.innerHTML=filtered.map(d=>{const[bg,col]=clsColors[d.clsColor]||clsColors.cyan;return`<div class="drug-card" onclick="this.classList.toggle('open')"><div class="drug-header"><div style="display:flex;align-items:flex-start;gap:10px;"><span class="drug-emoji">${d.emoji}</span><div><div class="drug-name">${d.name}</div><div class="drug-generic">${d.generic}</div><span class="drug-class-tag" style="background:${bg};color:${col}">${d.cls}</span></div></div><div style="color:var(--text-dimmer);font-size:14px;flex-shrink:0;margin-top:2px;">▼</div></div><div class="drug-body"><div class="med-row" style="margin-top:0;"><div class="med-label">Use</div><div class="med-val">${d.use}</div></div><div class="med-row"><div class="med-label">Mechanism</div><div class="med-val">${d.mechanism}</div></div><div class="warn-row med-row"><div class="med-label">⚠ Warning</div><div class="med-val">${d.warning}</div></div><div class="med-row"><div class="med-label">Interactions</div><div class="med-val">${d.interactions}</div></div></div></div>`;}).join('');
 }
@@ -691,7 +654,6 @@ const RISK_CONDITIONS={
 
 let familyMembers=JSON.parse(localStorage.getItem("sym_family")||"[]");
 let editingMemberId=null,pendingConditions=[],currentFHTab='tree';
-
 const GEN_ORDER={'Maternal Grandmother':0,'Maternal Grandfather':0,'Paternal Grandmother':0,'Paternal Grandfather':0,'Mother':1,'Father':1,'Maternal Aunt':1,'Maternal Uncle':1,'Paternal Aunt':1,'Paternal Uncle':1,'Sister':2,'Brother':2,'Cousin':2,'Daughter':3,'Son':3};
 const GEN_LABELS=['Grandparents','Parents & Aunts/Uncles','Siblings & Cousins','Children'];
 
@@ -715,7 +677,7 @@ function renderFHTree(){
       const more=(m.conditions||[]).length>2?`<span class="tm-tag" style="background:var(--bg3);color:var(--text-dimmer)">+${m.conditions.length-2}</span>`:'';
       html+=`<div class="tree-member ${(m.conditions||[]).length>0?'has-conditions':''} ${m.status==='deceased'?'deceased':''}" onclick="openEditMember('${m.id}')"><div class="tm-avatar" style="background:${memberAvatarBg(m.rel)}">${memberAvatar(m.rel)}</div><div class="tm-name">${m.name}</div><div class="tm-rel">${m.rel}${m.year?' · b.'+m.year:''}</div>${(m.conditions||[]).length?`<div class="tm-tags">${condTags}${more}</div>`:''}</div>`;
     });
-    html+=`<button class="add-member-btn" onclick="openAddMember()"><span class="plus">+</span><span>Add</span></button></div>`;
+    html+=`<button class="add-member-btn" onclick="openAddMember()"><span style="font-size:22px;">+</span><span>Add</span></button></div>`;
   });
   html+=`<button onclick="openAddMember()" style="width:100%;background:var(--purple-dim);border:1px solid rgba(155,109,255,0.3);color:var(--purple);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;padding:13px;border-radius:var(--radius);cursor:pointer;margin-top:4px;">+ Add Family Member</button></div>`;
   el.innerHTML=html;
@@ -730,7 +692,7 @@ function renderFHRisks(){
   const sorted=Object.values(riskMap).sort((a,b)=>({high:0,med:1,low:2}[a.risk]-{high:0,med:1,low:2}[b.risk]));
   if(!sorted.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">No Flagged Risks</div></div>`;return;}
   const highCount=sorted.filter(r=>r.risk==='high').length;
-  el.innerHTML=`${highCount>0?`<div class="risk-banner high" style="margin:14px 14px 0;"><div class="risk-icon">🔴</div><div><div class="risk-title">${highCount} High-Risk Inherited Condition${highCount>1?'s':''}</div><div class="risk-sub">Discuss these with your doctor at your next visit.</div></div></div>`:''}<div style="padding:14px;"><div class="section-label" style="margin-bottom:10px;">Inherited Risk Factors</div>${sorted.map(r=>`<div class="risk-card"><div class="risk-dot ${r.risk}"></div><div style="flex:1"><div class="risk-card-name">${r.icon} ${r.label}</div><div class="risk-card-meta">Reported by: ${r.members.join(', ')}</div><div class="risk-card-meta" style="margin-top:3px;">📋 ${r.screening}</div></div><span class="risk-card-level ${r.risk}">${r.risk==='high'?'High':r.risk==='med'?'Moderate':'Low'}</span></div>`).join('')}<div class="disclaimer-bar" style="margin:8px 0 0;"><span style="font-size:13px;flex-shrink:0;">⚠️</span><span>Risk levels are informational only. Always consult your healthcare provider.</span></div></div>`;
+  el.innerHTML=`${highCount>0?`<div style="margin:14px 14px 0;background:var(--red-dim);border:1px solid rgba(224,82,82,0.3);border-radius:var(--radius);padding:13px 14px;display:flex;align-items:flex-start;gap:10px;"><div style="font-size:20px;">🔴</div><div><div style="font-size:13px;font-weight:700;color:var(--red);">${highCount} High-Risk Inherited Condition${highCount>1?'s':''}</div><div style="font-size:12px;color:#d07070;margin-top:2px;">Discuss these with your doctor at your next visit.</div></div></div>`:''}<div style="padding:14px;"><div class="section-label" style="margin-bottom:10px;">Inherited Risk Factors</div>${sorted.map(r=>`<div class="risk-card"><div class="risk-dot ${r.risk}"></div><div style="flex:1"><div class="risk-card-name">${r.icon} ${r.label}</div><div class="risk-card-meta">Reported by: ${r.members.join(', ')}</div><div class="risk-card-meta" style="margin-top:3px;">📋 ${r.screening}</div></div><span class="risk-card-level ${r.risk}">${r.risk==='high'?'High':r.risk==='med'?'Moderate':'Low'}</span></div>`).join('')}<div class="disclaimer-bar" style="margin:8px 0 0;"><span style="font-size:13px;flex-shrink:0;">⚠️</span><span>Risk levels are informational only. Always consult your healthcare provider.</span></div></div>`;
 }
 
 function renderFHScreenings(){
@@ -749,22 +711,18 @@ function renderFHScreenings(){
 
 function renderFHPrompts(){
   const prompts=[
-    {cat:"Getting Started",qs:[{icon:"💬",q:"\"I'm putting together a health history for our family. Would you be willing to share some things with me?\""},
-    {icon:"💬",q:"\"I'm not trying to bring up anything painful — I just want to make sure our kids have this information.\""}]},
-    {cat:"Conditions & Diagnoses",qs:[{icon:"🩺",q:"\"Did you or anyone in your family ever have heart problems, diabetes, or cancer?\""},
-    {icon:"🩺",q:"\"Are there any conditions that seem to run in our family that I should know about?\""}]},
-    {cat:"Mental Health",qs:[{icon:"🧠",q:"\"Did anyone in the family ever struggle with depression, anxiety, or anything like that?\""},
-    {icon:"🧠",q:"\"Were there any relatives who had memory problems or dementia as they got older?\""}]},
-    {cat:"Medications & Allergies",qs:[{icon:"💊",q:"\"Did anyone in the family have a bad reaction to a medication or serious allergies?\""}]},
-    {cat:"Causes of Death",qs:[{icon:"🕊️",q:"\"If it's okay to ask — what did your parents or grandparents pass from?\""},
-    {icon:"🕊️",q:"\"How old were they when they passed? Was it related to an illness?\""}]},
-    {cat:"Women's Health",qs:[{icon:"🤱",q:"\"Was there any history of breast cancer or ovarian cancer on either side of the family?\""}]},
+    {cat:"Getting Started",qs:[{icon:"💬",q:"I am putting together a health history for our family. Would you be willing to share some things with me?"},{icon:"💬",q:"I am not trying to bring up anything painful. I just want to make sure our kids have this information."}]},
+    {cat:"Conditions & Diagnoses",qs:[{icon:"🩺",q:"Did you or anyone in your family ever have heart problems, diabetes, or cancer?"},{icon:"🩺",q:"Are there any conditions that seem to run in our family that I should know about?"}]},
+    {cat:"Mental Health",qs:[{icon:"🧠",q:"Did anyone in the family ever struggle with depression, anxiety, or anything like that?"},{icon:"🧠",q:"Were there any relatives who had memory problems or dementia as they got older?"}]},
+    {cat:"Medications & Allergies",qs:[{icon:"💊",q:"Did anyone in the family have a bad reaction to a medication or serious allergies?"}]},
+    {cat:"Causes of Death",qs:[{icon:"🕊️",q:"If it is okay to ask — what did your parents or grandparents pass from?"},{icon:"🕊️",q:"How old were they when they passed? Was it related to an illness?"}]},
+    {cat:"Women's Health",qs:[{icon:"🤱",q:"Was there any history of breast cancer or ovarian cancer on either side of the family?"}]},
   ];
-  document.getElementById('fhContent').innerHTML=`<div style="padding:14px;"><div style="background:var(--purple-dim);border:1px solid rgba(155,109,255,0.2);border-radius:var(--radius);padding:13px;margin-bottom:14px;font-size:13px;color:#b89aff;font-family:'DM Sans',sans-serif;line-height:1.5;">💡 Tap any question to copy it and use with older relatives.</div>${prompts.map(p=>`<div class="prompt-card"><div class="prompt-cat">${p.cat}</div>${p.qs.map(q=>`<div class="prompt-q" onclick="copyPrompt(this,'${q.q.replace(/'/g,"\\'")}')"><span>${q.icon}</span><span>${q.q}</span></div>`).join('')}</div>`).join('')}</div>`;
+  document.getElementById('fhContent').innerHTML=`<div style="padding:14px;"><div style="background:var(--purple-dim);border:1px solid rgba(155,109,255,0.2);border-radius:var(--radius);padding:13px;margin-bottom:14px;font-size:13px;color:#b89aff;font-family:'DM Sans',sans-serif;line-height:1.5;">💡 Tap any question to copy it and use with older relatives.</div>${prompts.map(p=>`<div class="prompt-card"><div class="prompt-cat">${p.cat}</div>${p.qs.map(q=>`<div class="prompt-q" onclick="copyPrompt(this,'${q.q}')"><span>${q.icon}</span><span>${q.q}</span></div>`).join('')}</div>`).join('')}</div>`;
 }
 
 function copyPrompt(el,text){
-  navigator.clipboard?.writeText(text.replace(/\\'/g,"'")).catch(()=>{});
+  navigator.clipboard?.writeText(text).catch(()=>{});
   const orig=el.style.background;el.style.background='var(--purple-dim)';setTimeout(()=>el.style.background=orig,600);
 }
 
@@ -877,7 +835,7 @@ function showTrialBanner(){
 
 async function fetchAICondition(query){
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:`You are a medical reference AI for the Symptara app. Return ONLY a JSON object with no markdown. Schema: {"name":"string","icd":"string","category":"cardiovascular|neurological|respiratory|gastrointestinal|endocrine|immunology|other","categoryLabel":"string","desc":"string","alert":"string","prevalence":"string","causes":[{"title":"string","body":"string"}],"symptoms":{"primary":["string"],"secondary":["string"],"warning":["string"]},"meds":[{"name":"string","generic":"string","cls":"string","clsColor":"cyan|purple|green|orange","use":"string","warning":"string"}],"specialists":["string"],"related":[{"name":"string","cat":"string","icd":"string"}]}`,messages:[{role:'user',content:`Provide medical reference information for: ${query}`}]})});
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:`You are a medical reference AI for the Symptara app. Return ONLY a JSON object with no markdown. Schema: {"name":"string","icd":"string","category":"cardiovascular|neurological|respiratory|gastrointestinal|endocrine|immunology|other","categoryLabel":"string","desc":"string","alert":"string","prevalence":"string","causes":[{"title":"string","body":"string"}],"symptoms":{"primary":["string"],"secondary":["string"],"warning":["string"]},"meds":[{"name":"string","generic":"string","cls":"string","clsColor":"cyan|purple|green|orange","use":"string","warning":"string"}],"specialists":["string"],"related":[{"name":"string","cat":"string","icd":"string"}]}`,messages:[{role:'user',content:`Provide medical reference information for: ${query}`}]})});
     const data=await res.json();
     const text=data.content?.find(b=>b.type==='text')?.text||'';
     const cond=JSON.parse(text.replace(/```json|```/g,'').trim());
@@ -889,7 +847,7 @@ async function fetchAICondition(query){
 
 async function fetchAIDiffDx(symptoms,el){
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:`You are a clinical decision support AI. Return ONLY a JSON array, no markdown. Each item: {"name":"string","reason":"string","likelihood":"High|Moderate|Low"}. Return 5 items ranked by likelihood.`,messages:[{role:'user',content:`Generate a differential diagnosis for: ${symptoms}`}]})});
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:`You are a clinical decision support AI. Return ONLY a JSON array, no markdown. Each item: {"name":"string","reason":"string","likelihood":"High|Moderate|Low"}. Return 5 items ranked by likelihood.`,messages:[{role:'user',content:`Generate a differential diagnosis for: ${symptoms}`}]})});
     const data=await res.json();
     const text=data.content?.find(b=>b.type==='text')?.text||'';
     const results=JSON.parse(text.replace(/```json|```/g,'').trim());
@@ -907,39 +865,6 @@ function gatedFamily(el){
 renderDrugs();
 renderFHScreen();
 if(isSubscribed())showTrialBanner();
-
-
 </script>
 </body>
 </html>
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify(req.body)
-    });
-
-    const data = await response.json();
-    return res.status(200).json(data);
-  } catch (err) {
-    return res.status(500).json({ error: 'API request failed' });
-  }
-}
-
