@@ -1133,7 +1133,7 @@ async function fetchAIDiffDx(symptoms,el){
   }catch(err){el.innerHTML=`<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Could not generate results</div><div class="empty-sub">Check your connection and try again.</div></div>`;}
 }
 
-if(currentUser){enterApp();}
+if(currentUser){enterApp();}else{document.getElementById('loginScreen').style.display='flex';}
 </script>
 </body>
 </html>
