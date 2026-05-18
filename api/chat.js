@@ -22,6 +22,14 @@ export default async function handler(req, res) {
       console.error('Anthropic error:', data.error);
       return res.status(500).json({ error: data.error.message || 'Anthropic API error' });
     }
+    if (data.content && data.content[0] && data.content[0].text) {
+      let t = data.content[0].text;
+      const obj = t.match(/\{[\s\S]*\}/);
+      const arr = t.match(/\[[\s\S]*\]/);
+      if (arr && (!obj || arr[0].length > obj[0].length)) t = arr[0];
+      else if (obj) t = obj[0];
+      data.content[0].text = t;
+    }
     return res.status(200).json(data);
   } catch (err) {
     console.error('Function error:', err);
