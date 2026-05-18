@@ -19,6 +19,8 @@ export default async function handler(req, res) {
       body: JSON.stringify(body)
     });
     const data = await response.json();
+    console.log('ANTHROPIC_RESPONSE:', JSON.stringify(data));
+
     if (data.error) {
       console.error('Anthropic error:', data.error);
       return res.status(500).json({ error: data.error.message || 'Anthropic API error' });
