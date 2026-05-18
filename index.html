@@ -838,8 +838,9 @@ async function fetchAICondition(query){
     const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1000,system:`You are a medical reference AI for the Symptara app. Return ONLY a JSON object with no markdown. Schema: {"name":"string","icd":"string","category":"cardiovascular|neurological|respiratory|gastrointestinal|endocrine|immunology|other","categoryLabel":"string","desc":"string","alert":"string","prevalence":"string","causes":[{"title":"string","body":"string"}],"symptoms":{"primary":["string"],"secondary":["string"],"warning":["string"]},"meds":[{"name":"string","generic":"string","cls":"string","clsColor":"cyan|purple|green|orange","use":"string","warning":"string"}],"specialists":["string"],"related":[{"name":"string","cat":"string","icd":"string"}]}`,messages:[{role:'user',content:`Provide medical reference information for: ${query}`}]})});
     const data=await res.json();
     const text=data.content?.find(b=>b.type==='text')?.text||'';
-    const m=text.match(/\{[\s\S]*\}/);if(!m)throw new Error('No JSON');const cond=JSON.parse(m[0]);
-    cond.source='ai';showCondition(cond);
+       const cond=JSON.parse(text.replace(/```json|```/g,'').trim());
+      cond.source='ai';showCondition(cond);
+
   }catch(err){
     document.getElementById('resultConditionWrap').innerHTML=`<div class="condition-card"><div class="card-tags"><div class="tag tag-ai">🤖 AI</div></div><div class="condition-name">${capitalize(query)}</div><div style="color:var(--text-dim);font-size:14px;padding:16px 0;font-family:'DM Sans',sans-serif;">Unable to retrieve AI results. Please check your connection and try again.</div></div>`;
   }
