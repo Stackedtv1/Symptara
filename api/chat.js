@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     const body = req.body || {};
     if (!body.model) body.model = 'claude-haiku-4-5';
 
-    if (!body.max_tokens) body.max_tokens = 1024;
+    if (!body.max_tokens) body.max_tokens = 4096;
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
