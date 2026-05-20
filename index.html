@@ -1049,7 +1049,10 @@ function runDiffDx(){
 function renderDrugs(filter){
   const el=document.getElementById('drugResults');
   const filtered=filter?DRUGS.filter(d=>d.name.toLowerCase().includes(filter)||d.cls.toLowerCase().includes(filter)):DRUGS;
-  if(!filtered.length){if(filter&&filter.length>2){fetchAIDrug(filter);return;}
+   if(filter&&filter.length>2){fetchAIDrug(filter);return;}
+
+    
+
 el.innerHTML=`<div class="empty-state">...
 
   el.innerHTML=filtered.map(d=>{const[bg,col]=clsColors[d.clsColor]||clsColors.cyan;return`<div class="drug-card" onclick="this.classList.toggle('open')"><div class="drug-header"><div style="display:flex;align-items:flex-start;gap:10px;"><span class="drug-emoji">${d.emoji}</span><div><div class="drug-name">${d.name}</div><div class="drug-generic">${d.generic}</div><span class="drug-class-tag" style="background:${bg};color:${col}">${d.cls}</span></div></div><div style="color:var(--text-dimmer);font-size:14px;flex-shrink:0;margin-top:2px;">▼</div></div><div class="drug-body"><div class="med-row" style="margin-top:0;"><div class="med-label">Use</div><div class="med-val">${d.use}</div></div><div class="med-row"><div class="med-label">Mechanism</div><div class="med-val">${d.mechanism}</div></div><div class="warn-row med-row"><div class="med-label">⚠ Warning</div><div class="med-val">${d.warning}</div></div><div class="med-row"><div class="med-label">Interactions</div><div class="med-val">${d.interactions}</div></div></div></div>`;}).join('');
