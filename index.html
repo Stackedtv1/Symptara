@@ -977,7 +977,8 @@ function showCondition(cond){
   const bkSaved=bookmarks[cond.name]?'saved':'';
   document.getElementById('resultConditionWrap').innerHTML=`<div class="condition-card"><div class="card-tags"><div class="tag ${catTag}">${cond.categoryLabel}</div><div class="tag tag-icd">${cond.icd}</div>${srcTag}<button class="bookmark-btn ${bkSaved}" onclick="toggleBookmark('${cond.name}')" id="bkBtn">🔖</button></div><div class="condition-name">${cond.name}</div><div class="condition-desc">${cond.desc}</div>${cond.alert?`<div class="alert-box">${cond.alert}</div>`:''}<div class="prevalence">🌍 Prevalence: ${cond.prevalence}</div></div>`;
   document.querySelectorAll('.sub-tab').forEach(t=>t.classList.remove('active'));document.querySelector('.sub-tab').classList.add('active');
-  currentSubTab='overview';renderSubContent('overview');
+  currentSubTab='overview';renderSubContent('overview');loadConditionImage(cond.name);
+
 }
 function showAIResult(query){
   if(!isSubscribed()){openPaywall('search');return;}
@@ -986,8 +987,25 @@ function showAIResult(query){
   document.getElementById('resultState').style.display='flex';
   document.getElementById('resultConditionWrap').innerHTML=`<div class="condition-card"><div class="card-tags"><div class="tag tag-ai">🤖 AI</div></div><div class="condition-name">${capitalize(query)}</div><div style="display:flex;align-items:center;gap:10px;padding:20px 0 10px;"><div class="spinner"></div><span style="color:var(--text-dim);font-size:14px;">Searching AI medical database...</span></div><div class="disclaimer-bar" style="margin:0;"><span style="font-size:13px;flex-shrink:0;">⚠️</span><span>For informational purposes only. Always consult a qualified healthcare provider.</span></div></div>`;
   document.getElementById('subContent').innerHTML='';
-  fetchAICondition(query);
+  fetchAICondition(query);setTimeout(()=>loadConditionImage(query),3000);
+
 }
+  async function loadConditionImage(name){
+  try{
+    const url=`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name)}`;
+    const res=await fetch(url);
+    if(!res.ok)return;
+    const data=await res.json();
+    if(!data.thumbnail||!data.thumbnail.source)return;
+    const card=document.querySelector('#resultConditionWrap .condition-card');
+    if(!card)return;
+    const img=document.createElement('img');
+    img.src=data.thumbnail.source;
+    img.style.cssText='width:100%;height:180px;object-fit:cover;border-radius:12px 12px 0 0;margin:-16px -16px 12px -16px;display:block;';
+    card.insertBefore(img,card.firstChild);
+  }catch(e){}
+}
+
 function switchSubTab(el,tab){document.querySelectorAll('.sub-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');currentSubTab=tab;renderSubContent(tab);}
 function renderSubContent(tab){
   const cond=currentCondition;const el=document.getElementById('subContent');if(!cond)return;
