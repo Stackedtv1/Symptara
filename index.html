@@ -1049,7 +1049,7 @@ function runDiffDx(){
 function renderDrugs(filter){
   const el=document.getElementById('drugResults');
   const filtered=filter?DRUGS.filter(d=>d.name.toLowerCase().includes(filter)||d.cls.toLowerCase().includes(filter)):DRUGS;
-   if(filter&&filter.length>2){fetchAIDrug(filter);return;}
+   if(filter&&filter.length>2){fetchFDADrug(filter);return;}
 
     
 
@@ -1164,6 +1164,32 @@ async function fetchAIDiffDx(symptoms,el){
 }
 
 if(currentUser){enterApp();}else{document.getElementById('loginScreen').style.display='flex';}
+  async function fetchFDADrug(query){
+  const el=document.getElementById('drugResults');
+  el.innerHTML=`<div class="spinner-wrap"><div class="spinner"></div></div><div style="text-align:center;color:var(--text-dim);font-size:13px;padding:0 20px 20px;">Searching FDA database for "${query}"...</div>`;
+  try{
+    const q=encodeURIComponent(query.toLowerCase().trim());
+    const url=`https://api.fda.gov/drug/label.json?search=(openfda.brand_name:"${q}"+OR+openfda.generic_name:"${q}"+OR+openfda.substance_name:"${q}")&limit=1`;
+    const r=await fetch(url);
+    if(!r.ok)throw new Error('FDA API unavailable');
+    const data=await r.json();
+    if(!data.results||!data.results.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">💊</div><div class="empty-title">No results for "${query}"</div><div class="empty-sub">Not found in the FDA database. Try a different spelling or the generic name.</div></div>`;return;}
+    const r0=data.results[0];const ofda=r0.openfda||{};
+    const clean=t=>{if(!t)return'';const s=Array.isArray(t)?t.join(' '):t;return s.replace(/\s+/g,' ').trim();};
+    const trunc=(t,n)=>!t?'':(t.length>n?t.substring(0,n).trim()+'...':t);
+    const name=(ofda.brand_name&&ofda.brand_name[0])||(ofda.generic_name&&ofda.generic_name[0])||query;
+    const generic=(ofda.generic_name&&ofda.generic_name[0])||(ofda.substance_name&&ofda.substance_name[0])||'—';
+    const cls=(ofda.pharm_class_epc&&ofda.pharm_class_epc[0])||(ofda.pharm_class_moa&&ofda.pharm_class_moa[0])||'See FDA label';
+    const indications=clean(r0.indications_and_usage)||clean(r0.purpose)||'See FDA label.';
+    const mechanism=clean(r0.mechanism_of_action)||'See FDA label.';
+    const warnings=clean(r0.boxed_warning)||clean(r0.warnings_and_cautions)||clean(r0.warnings)||'See FDA label.';
+    const interactions=clean(r0.drug_interactions)||'See FDA label.';
+    const dosage=clean(r0.dosage_and_administration)||'';
+    const adverse=clean(r0.adverse_reactions)||'';
+    el.innerHTML=`<div class="drug-card open"><div class="drug-header"><div style="display:flex;align-items:flex-start;gap:10px;"><span class="drug-emoji">💊</span><div><div class="drug-name">${name.charAt(0).toUpperCase()+name.slice(1).toLowerCase()}</div><div class="drug-generic">${generic.toLowerCase()}</div><span class="drug-class-tag" style="background:rgba(155,109,255,0.12);color:#9b6dff">${trunc(cls,40)}</span> <span style="margin-left:4px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;background:rgba(0,200,224,0.12);color:#00c8e0;">🏛️ FDA</span></div></div></div><div class="drug-body"><div class="med-row" style="margin-top:0;"><div class="med-label">Use</div><div class="med-val">${trunc(indications,400)}</div></div><div class="med-row"><div class="med-label">Mechanism</div><div class="med-val">${trunc(mechanism,400)}</div></div>${dosage?`<div class="med-row"><div class="med-label">Dosage</div><div class="med-val">${trunc(dosage,300)}</div></div>`:''}<div class="warn-row med-row"><div class="med-label">⚠ Warning</div><div class="med-val">${trunc(warnings,500)}</div></div><div class="med-row"><div class="med-label">Interactions</div><div class="med-val">${trunc(interactions,400)}</div></div>${adverse?`<div class="med-row"><div class="med-label">Side Effects</div><div class="med-val">${trunc(adverse,400)}</div></div>`:''}</div></div><div class="disclaimer-bar" style="margin:12px 0 0;"><span style="font-size:13px;flex-shrink:0;">⚠️</span><span>FDA labeling data. For informational purposes only. Always consult a healthcare provider.</span></div>`;
+  }catch(e){el.innerHTML=`<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Search unavailable</div><div class="empty-sub">Couldn't reach FDA database. Try again.</div></div>`;}
+}
+
 </script>
 </body>
 </html>
